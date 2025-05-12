@@ -1,0 +1,36 @@
+{
+  "name": "@flipflop-sdk/tools",
+  "version": "0.1.1",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "babel src --out-dir dist --extensions .jsx,.js"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.8.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "keywords": [
+    "react",
+    "component",
+    "greeting"
+  ],
+  "author": "flipflop",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flipflop-fun/sdk.git"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@types/prop-types": "^15.7.14",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.3"
+  }
+}

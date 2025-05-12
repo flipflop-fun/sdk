@@ -1,0 +1,1 @@
+export { default as GreetingComponent } from './GreetingComponent';
