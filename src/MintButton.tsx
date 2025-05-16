@@ -1,27 +1,15 @@
-import React, { FC } from 'react';
-import {
-  Connection,
-  PublicKey,
-} from '@solana/web3.js';
+import React, { FC, useEffect } from 'react';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
-import { AnchorWallet } from '@solana/wallet-adapter-react';
 import { FairMintToken } from './types/fair_mint_token';
 import idl from "./idl/fair_mint_token.json";
 import { cleanMetadata, configAccount, getLegacyTokenMetadata, getReferralDataByCodeHash, getReferrerCodeHash, metadataAccountPda, mintBy, referralAccount, systemConfigAccount } from './utils/web3';
-import { addressLookupTableAddress, SYSTEM_DEPLOYER } from './config';
-import { SuccessResponseData } from './types/common';
-
-type MintButtonProps = {
-  mintAddress: string;
-  urcCode: string;
-  wallet: AnchorWallet;
-  connection: Connection;
-  buttonTitle?: string;
-  buttonStyle?: Object;
-  onStart?: () => void;
-  onError?: (error: string) => void;
-  onSuccess?: (data: SuccessResponseData) => void;
-};
+import { addressLookupTableAddress, FLIPFLOP_BASE_URL, MAX_URC_USAGE_COUNT, SYSTEM_DEPLOYER } from './config';
+import { InitiazlizedTokenData, MintButtonProps, SuccessResponseData } from './types/common';
+import FlipflopLogo from './FlipflopLogo';
+import { queryInitializeTokenEventBySearch } from './graphql';
+import { ApolloProvider, useQuery } from '@apollo/client';
+import { client } from '.';
 
 const defaultButtonStyle = {
   padding: '10px',
@@ -29,10 +17,30 @@ const defaultButtonStyle = {
   cursor: 'pointer',
 };
 
-const MintButton: FC<MintButtonProps> = ({
+const defaultInformationStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  fontSize: '12px',
+}
+
+const defaultGenerateURCStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  fontSize: '14px',
+}
+
+const defaultFlipflopLogoStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+}
+
+const MintButtonInner: FC<MintButtonProps> = ({
   mintAddress,
   urcCode,
   buttonStyle,
+  informationStyle,
+  generateURCStyle,
+  flipflopLogoStyle,
   buttonTitle,
   wallet,
   connection,
@@ -40,6 +48,30 @@ const MintButton: FC<MintButtonProps> = ({
   onError,
   onSuccess,
 }) => {
+  const [donateAmount, setDonateAmount] = React.useState(0);
+  const [mintAmount, setMintAmount] = React.useState("0");
+  const [tokenSymbol, setTokenSymbol] = React.useState('');
+  const [tokenName, setTokenName] = React.useState('');
+
+  const { loading, error, data } = useQuery(queryInitializeTokenEventBySearch, {
+    variables: {
+      skip: 0,
+      first: 1,
+      searchQuery: mintAddress
+    },
+    fetchPolicy: 'network-only'
+  });
+
+  useEffect(() => {
+    const getTokenInfo = async () => {
+      const tokenData = (data?.initializeTokenEventEntities as InitiazlizedTokenData[])[0];
+      setDonateAmount(parseFloat(tokenData.feeRate) / LAMPORTS_PER_SOL);
+      setMintAmount((parseInt(tokenData.mintSizeEpoch) / LAMPORTS_PER_SOL).toLocaleString(undefined, {maximumFractionDigits: 2})); // ######
+      setTokenSymbol(tokenData.tokenSymbol);
+      setTokenName(tokenData.tokenName);
+    }
+    if(!loading && !error && data) getTokenInfo();
+  }, [data, loading, error]);
 
   const mint = async () => {
     onStart?.();
@@ -53,29 +85,29 @@ const MintButton: FC<MintButtonProps> = ({
       return;
     }
     if (!urcCode || urcCode === '') {
-      onError?.('Urc code is not provided');
+      onError?.('URC code is not provided');
       return;
     }
     const program = new anchor.Program<FairMintToken>(idl, provider);
 
-    console.log('start mint');
     if (!provider.wallet) {
       onError?.('Wallet is not connected');
       return;
     }
 
     const _systemConfigAccount = systemConfigAccount(program, new PublicKey(SYSTEM_DEPLOYER));
-    console.log('_systemConfigAccount', _systemConfigAccount.toBase58());
     const _protocolFeeAccount = new PublicKey(SYSTEM_DEPLOYER);
-    console.log('_protocolFeeAccount', _protocolFeeAccount.toBase58());
     const _mintAddress = new PublicKey(mintAddress);
-    console.log('_mintAddress', _mintAddress.toBase58());
     const _configAccount = configAccount(program, _mintAddress);
-    console.log('_configAccount', _configAccount.toBase58());
     const _codeHash = getReferrerCodeHash(program, urcCode);
     const _referralData = await getReferralDataByCodeHash(program, _codeHash);
     if (!_referralData.success) {
-      onError?.('Referral data not found');
+      onError?.('Fail to get URC data, please use another one.');
+      return;
+    }
+
+    if (_referralData.data.usageCount >= MAX_URC_USAGE_COUNT) {
+      onError?.('URC code is used up, please use another one.');
       return;
     }
     const _referrerMain = _referralData.data.referrerMain;
@@ -84,12 +116,8 @@ const MintButton: FC<MintButtonProps> = ({
       return;
     }
     const _referralAccount = referralAccount(program, _mintAddress, _referrerMain);
-    console.log("_referralAccount", _referralAccount.toBase58());
     const lookupTableAddress = new PublicKey(addressLookupTableAddress); // devnet
-    console.log("lookupTableAddress", lookupTableAddress);
-
     const _metadataAccount = metadataAccountPda(new PublicKey(mintAddress));
-    console.log("_metadataAccount", _metadataAccount)
     const metadataAccountInfo = await connection.getAccountInfo(_metadataAccount);
     const rawMetadata = await getLegacyTokenMetadata(metadataAccountInfo);
     if (!rawMetadata.success) {
@@ -101,7 +129,6 @@ const MintButton: FC<MintButtonProps> = ({
       name: rawMetadata.data.data.name,
       uri: rawMetadata.data.data.uri,
     });
-    console.log("_metadata", _metadata);
 
     const response = await mintBy(
       (program as unknown) as anchor.Program<FairMintToken>,
@@ -117,7 +144,6 @@ const MintButton: FC<MintButtonProps> = ({
       lookupTableAddress,
       _protocolFeeAccount
     );
-    console.log("response", response);
     if (!response.success) {
       onError?.(response.data.message);
       return;
@@ -128,10 +154,58 @@ const MintButton: FC<MintButtonProps> = ({
   }
 
   return (
-    <div style={{...defaultButtonStyle, ...buttonStyle}} onClick={() => mint()}>
-      <div>{buttonTitle ? buttonTitle : "Mint"}</div>
+    <div>
+    {donateAmount > 0 &&
+      <div>
+        <div style={{...defaultInformationStyle, ...informationStyle}}>
+          <div style={{marginRight: '2px'}}>Donate {donateAmount} SOL and get ~{mintAmount} {tokenSymbol}</div>
+          <a href={`${FLIPFLOP_BASE_URL}/token/${mintAddress}`} target='_blank'>[{tokenName}]</a>
+        </div>
+        <div style={{...defaultButtonStyle, ...buttonStyle}} onClick={() => mint()}>
+          <div>{buttonTitle ? buttonTitle : "Mint"}</div>
+        </div>
+        <a style={{...defaultGenerateURCStyle, ...generateURCStyle}} href={`${FLIPFLOP_BASE_URL}/token/${mintAddress}`} target="_blank">
+          Activiate my URC code
+        </a>
+        <div style={{...defaultFlipflopLogoStyle, ...flipflopLogoStyle}}>
+          <FlipflopLogo />
+        </div>
+      </div>}
     </div>
   );
 };
 
+const MintButton: FC<MintButtonProps> = ({
+  mintAddress,
+  urcCode,
+  buttonStyle,
+  informationStyle,
+  generateURCStyle,
+  flipflopLogoStyle,
+  buttonTitle,
+  wallet,
+  connection,
+  onStart,
+  onError,
+  onSuccess,
+}) => {
+  return (
+    <ApolloProvider client={client}>
+      <MintButtonInner
+        mintAddress={mintAddress}
+        urcCode={urcCode}
+        buttonStyle={buttonStyle}
+        informationStyle={informationStyle}
+        generateURCStyle={generateURCStyle}
+        flipflopLogoStyle={flipflopLogoStyle}
+        buttonTitle={buttonTitle}
+        wallet={wallet}
+        connection={connection}
+        onStart={onStart}
+        onError={onError}
+        onSuccess={onSuccess}
+      />
+    </ApolloProvider>
+  )
+}
 export default MintButton;

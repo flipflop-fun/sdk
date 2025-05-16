@@ -687,7 +687,7 @@ export const mintBy = async (
         tokenAccount: destinationAta.toBase58(),
         wsolAccount: destinationWsolAta.toBase58(),
         tx: result.data?.tx,
-        tokenUrl: `${FLIPFLOP_BASE_URL}/${mintAccount.toBase58()}`,
+        tokenUrl: `${FLIPFLOP_BASE_URL}/token/${mintAccount.toBase58()}`,
       } as SuccessResponseData
     }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
