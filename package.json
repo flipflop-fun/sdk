@@ -5,7 +5,10 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "babel src --out-dir dist --extensions .jsx,.js,.ts,.tsx && tsc --emitDeclarationOnly && cp -r src/idl dist/"
+    "build": "babel src --out-dir dist --extensions .jsx,.js,.ts,.tsx && tsc --emitDeclarationOnly && cp -r src/idl dist/",
+    "publish:patch": "npm version patch && npm publish --access public",
+    "publish:minor": "npm version minor && npm publish --access public",
+    "publish:major": "npm version major && npm publish --access public"
   },
   "peerDependencies": {
     "prop-types": "^15.8.1",
