@@ -1,8 +1,10 @@
 # FlipFlop SDK Tools
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/flipflop-fun/sdk)
 [![npm version](https://badge.fury.io/js/%40flipflop-sdk%2Ftools.svg)](https://badge.fury.io/js/%40flipflop-sdk%2Ftools)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/flipflop-fun/sdk)
 
 A comprehensive React SDK for integrating FlipFlop's Proof of Mint functionality into your Apps. This toolkit provides production-ready components for seamless token minting experiences with built-in wallet integration, error handling, and customizable UI components.
 
