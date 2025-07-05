@@ -1,5 +1,5 @@
-import { PublicKey, Connection, ComputeBudgetProgram, AddressLookupTableAccount, VersionedTransaction, TransactionMessage, AccountInfo, BlockhashWithExpiryBlockHeight } from "@solana/web3.js";
-import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, cpSwapConfigAddress, cpSwapProgram, createPoolFeeReceive, FLIPFLOP_BASE_URL, METADATA_SEED, PROTOCOL_FEE_ACCOUNT, REFERRAL_CODE_SEED, REFERRAL_SEED, REFUND_SEEDS, SYSTEM_CONFIG_SEEDS, SYSTEM_DEPLOYER, TOKEN_METADATA_PROGRAM_ID } from "../config";
+import { PublicKey, Connection, ComputeBudgetProgram, AddressLookupTableAccount, VersionedTransaction, TransactionMessage, AccountInfo, BlockhashWithExpiryBlockHeight, Transaction } from "@solana/web3.js";
+import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, cpSwapConfigAddress, cpSwapProgram, createPoolFeeReceive, FLIPFLOP_BASE_URL, METADATA_SEED, MINT_SEED, PROTOCOL_FEE_ACCOUNT, REFERRAL_CODE_SEED, REFERRAL_SEED, REFUND_SEEDS, SOLANA_RPC, SYSTEM_CONFIG_SEEDS, SYSTEM_DEPLOYER, TOKEN_METADATA_PROGRAM_ID } from "../config";
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from '../types/fair_mint_token';
 import idl from "../idl/fair_mint_token.json";
@@ -17,7 +17,8 @@ export const BN_MILLION = new BN(1000000);
 export const BN_LAMPORTS_PER_SOL = new BN(1000000000);
 
 export const connection = new Connection(
-  'https://api.devnet.solana.com'
+  SOLANA_RPC,
+  'confirmed',
 );
 
 export const updateProgramProvider = (keypair: anchor.web3.Keypair) => {
@@ -54,6 +55,10 @@ export const updateProgramProvider = (keypair: anchor.web3.Keypair) => {
 };
 
 // export const program = new anchor.Program<FairMintToken>(idl, provider);
+export const mintAccount = (program: anchor.Program<FairMintToken>, tokenName: string, tokenSymbol: string) => PublicKey.findProgramAddressSync(
+  [Buffer.from(MINT_SEED), Buffer.from(tokenName), Buffer.from(tokenSymbol.toLowerCase())],
+  program.programId
+)[0];
 
 export const configAccount = (program: anchor.Program<FairMintToken>, mintAccount: PublicKey) => PublicKey.findProgramAddressSync(
   [Buffer.from(CONFIG_DATA_SEED), mintAccount.toBuffer()],
@@ -72,6 +77,11 @@ export const referralAccount = (program:anchor.Program<FairMintToken>, mintAccou
 
 export const getReferrerCodeHash = (program:anchor.Program<FairMintToken>, code: string): PublicKey => PublicKey.findProgramAddressSync(
     [Buffer.from(REFERRAL_CODE_SEED), Buffer.from(code)],
+    program.programId,
+  )[0];
+
+export const refundAccountPda = (program:anchor.Program<FairMintToken>, mintAccount: PublicKey, userAccount: PublicKey) => PublicKey.findProgramAddressSync(
+    [Buffer.from(REFUND_SEEDS), new PublicKey(mintAccount).toBuffer(), userAccount.toBuffer()],
     program.programId,
   )[0];
 
@@ -709,3 +719,99 @@ export const cleanMetadata = (metadata: { name: string, symbol: string, uri: str
   }
   return cleaned;
 };
+
+export const processTransaction = async (
+  tx: Transaction,
+  connection: Connection,
+  wallet: AnchorWallet,
+  successMessage: string,
+  extraData: {}
+) => {
+  try {
+    // Get latest blockhash
+    const latestBlockhash = await connection.getLatestBlockhash();
+
+    // Get processing tx
+    const processingTx = localStorage.getItem('processing_tx');
+    const processingTimestamp = localStorage.getItem('processing_timestamp');
+    const now = Date.now();
+
+    // Check if there is a processing transaction (transaction within 2 seconds is considered as processing)
+    if (processingTx && processingTimestamp && (now - parseInt(processingTimestamp)) < 2000) {
+      return {
+        success: false,
+        message: 'Previous transaction is still processing. Please wait.'
+      }
+    }
+
+    // Set transaction parameters
+    tx.recentBlockhash = latestBlockhash.blockhash;
+    tx.feePayer = wallet.publicKey;
+
+    // Sign and serialize
+    const signedTx = await wallet.signTransaction(tx);
+    const serializedTx = signedTx.serialize();
+
+    // Simulate the transaction
+    const simulation = await connection.simulateTransaction(signedTx);
+
+    // If simulation fails, return error
+    if (simulation.value.err) {
+      return {
+        success: false,
+        message: `Transaction simulation failed: ${simulation.value.logs as string[]}`
+      };
+    }
+
+    // Mark the transaction as processing
+    localStorage.setItem('processing_tx', 'true');
+    localStorage.setItem('processing_timestamp', now.toString());
+
+    // Send the transaction
+    const txHash = await connection.sendRawTransaction(serializedTx, {
+      skipPreflight: true 
+    });
+
+    // Wait for the transaction confirmation
+    const confirmation = await connection.confirmTransaction({
+      signature: txHash,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+    }, 'confirmed');
+
+    if (confirmation.value.err) {
+      const txDetails = await connection.getTransaction(txHash, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      const errorMessage = txDetails?.meta?.logMessages || [];
+      return {
+        success: false,
+        message: 'Transaction failed: ' + errorMessage
+      }
+    }
+
+    return {
+      success: true,
+      message: successMessage,
+      data: {
+        tx: txHash,
+        ...extraData
+      }
+    };
+  } catch (error: any) {
+    if (error.message.includes('Transaction simulation failed: This transaction has already been processed')) {
+      return {
+        success: false,
+        message: 'Something went wrong but you have mint successfully',
+      }
+    }
+    return {
+      success: false,
+      message: 'Error: ' + error.message,
+    };
+  } finally {
+    localStorage.removeItem('processing_tx');
+    localStorage.removeItem('processing_timestamp');
+  }
+}

@@ -8,7 +8,7 @@ export type FairMintToken = {
   "address": "8GM2N7qQjzMyhqewu8jpDgzUh2BJbtBxSY1WzSFeFm6U",
   "metadata": {
     "name": "fairMintToken",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
   },
@@ -378,6 +378,8 @@ export type FairMintToken = {
                   103,
                   95,
                   118,
+                  49,
+                  46,
                   49
                 ]
               },
@@ -524,7 +526,39 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "protocolFeeAccount",
@@ -685,7 +719,39 @@ export type FairMintToken = {
           }
         },
         {
-          "name": "systemConfigAccount"
+          "name": "systemConfigAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "mintTokenVault",
@@ -783,7 +849,7 @@ export type FairMintToken = {
         },
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "token0Mint"
@@ -1021,7 +1087,39 @@ export type FairMintToken = {
           }
         },
         {
-          "name": "systemConfigAccount"
+          "name": "systemConfigAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "tokenVault",
@@ -1072,7 +1170,7 @@ export type FairMintToken = {
         },
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "token0Mint"
@@ -1118,7 +1216,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "owner",
@@ -1232,36 +1330,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                90,
-                139,
-                79,
-                41,
-                89,
-                82,
-                132,
-                37,
-                80,
-                170,
-                147,
-                253,
-                91,
-                149,
-                181,
-                172,
-                230,
-                168,
-                235,
-                146,
-                12,
-                147,
-                148,
-                46,
-                67,
-                105,
-                12,
+                49,
+                26,
+                136,
+                152,
+                134,
+                77,
                 32,
-                236,
-                115
+                99,
+                200,
+                252,
+                203,
+                83,
+                110,
+                30,
+                138,
+                48,
+                77,
+                141,
+                83,
+                152,
+                76,
+                10,
+                78,
+                179,
+                193,
+                68,
+                7,
+                214,
+                116,
+                231
               ]
             }
           }
@@ -1380,7 +1478,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "payer",
@@ -1494,36 +1592,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                90,
-                139,
-                79,
-                41,
-                89,
-                82,
-                132,
-                37,
-                80,
-                170,
-                147,
-                253,
-                91,
-                149,
-                181,
-                172,
-                230,
-                168,
-                235,
-                146,
-                12,
-                147,
-                148,
-                46,
-                67,
-                105,
-                12,
+                49,
+                26,
+                136,
+                152,
+                134,
+                77,
                 32,
-                236,
-                115
+                99,
+                200,
+                252,
+                203,
+                83,
+                110,
+                30,
+                138,
+                48,
+                77,
+                141,
+                83,
+                152,
+                76,
+                10,
+                78,
+                179,
+                193,
+                68,
+                7,
+                214,
+                116,
+                231
               ]
             }
           }
@@ -1638,7 +1736,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "payer",
@@ -1752,36 +1850,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                90,
-                139,
-                79,
-                41,
-                89,
-                82,
-                132,
-                37,
-                80,
-                170,
-                147,
-                253,
-                91,
-                149,
-                181,
-                172,
-                230,
-                168,
-                235,
-                146,
-                12,
-                147,
-                148,
-                46,
-                67,
-                105,
-                12,
+                49,
+                26,
+                136,
+                152,
+                134,
+                77,
                 32,
-                236,
-                115
+                99,
+                200,
+                252,
+                203,
+                83,
+                110,
+                30,
+                138,
+                48,
+                77,
+                141,
+                83,
+                152,
+                76,
+                10,
+                78,
+                179,
+                193,
+                68,
+                7,
+                214,
+                116,
+                231
               ]
             }
           }
@@ -1896,7 +1994,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
+          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
         },
         {
           "name": "owner",
@@ -2010,36 +2108,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                90,
-                139,
-                79,
-                41,
-                89,
-                82,
-                132,
-                37,
-                80,
-                170,
-                147,
-                253,
-                91,
-                149,
-                181,
-                172,
-                230,
-                168,
-                235,
-                146,
-                12,
-                147,
-                148,
-                46,
-                67,
-                105,
-                12,
+                49,
+                26,
+                136,
+                152,
+                134,
+                77,
                 32,
-                236,
-                115
+                99,
+                200,
+                252,
+                203,
+                83,
+                110,
+                30,
+                138,
+                48,
+                77,
+                141,
+                83,
+                152,
+                76,
+                10,
+                78,
+                179,
+                193,
+                68,
+                7,
+                214,
+                116,
+                231
               ]
             }
           }
@@ -2265,7 +2363,38 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "payer",
@@ -2522,7 +2651,39 @@ export type FairMintToken = {
           "name": "configAccount"
         },
         {
-          "name": "systemConfigAccount"
+          "name": "systemConfigAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "codeAccount",
@@ -2625,12 +2786,15 @@ export type FairMintToken = {
                   103,
                   95,
                   118,
+                  49,
+                  46,
                   49
                 ]
               },
               {
                 "kind": "account",
-                "path": "admin"
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
               }
             ]
           }
@@ -2678,7 +2842,7 @@ export type FairMintToken = {
           "type": "u64"
         },
         {
-          "name": "maxGraduateFee",
+          "name": "minGraduateFee",
           "type": "u64"
         },
         {
@@ -2807,7 +2971,39 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  121,
+                  115,
+                  116,
+                  101,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103,
+                  95,
+                  118,
+                  49,
+                  46,
+                  49
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "system_config_account.admin",
+                "account": "systemConfigData"
+              }
+            ]
+          }
         },
         {
           "name": "protocolFeeAccount",
@@ -2962,19 +3158,6 @@ export type FairMintToken = {
       ]
     },
     {
-      "name": "freezeTokenEvent",
-      "discriminator": [
-        82,
-        18,
-        159,
-        89,
-        129,
-        1,
-        145,
-        83
-      ]
-    },
-    {
       "name": "initializeTokenEvent",
       "discriminator": [
         108,
@@ -3024,19 +3207,6 @@ export type FairMintToken = {
         228,
         15,
         218
-      ]
-    },
-    {
-      "name": "thawTokenEvent",
-      "discriminator": [
-        50,
-        242,
-        230,
-        113,
-        49,
-        117,
-        236,
-        112
       ]
     },
     {
@@ -3620,26 +3790,6 @@ export type FairMintToken = {
       }
     },
     {
-      "name": "freezeTokenEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "mint",
-            "type": "pubkey"
-          },
-          {
-            "name": "destination",
-            "type": "pubkey"
-          },
-          {
-            "name": "configAccount",
-            "type": "pubkey"
-          }
-        ]
-      }
-    },
-    {
       "name": "initializeTokenConfigData",
       "type": {
         "kind": "struct",
@@ -4215,7 +4365,7 @@ export type FairMintToken = {
             "type": "u64"
           },
           {
-            "name": "maxGraduateFee",
+            "name": "minGraduateFee",
             "type": "u64"
           },
           {
@@ -4229,26 +4379,6 @@ export type FairMintToken = {
           {
             "name": "isPause",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "thawTokenEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "mint",
-            "type": "pubkey"
-          },
-          {
-            "name": "destination",
-            "type": "pubkey"
-          },
-          {
-            "name": "configAccount",
-            "type": "pubkey"
           }
         ]
       }

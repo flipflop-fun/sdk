@@ -95,6 +95,27 @@ export type MintButtonProps = {
   urcCode: string;
   wallet: AnchorWallet;
   connection: Connection;
+  showRefundButton: boolean;
+  buttonTitle?: string;
+  mintButtonStyle?: Object;
+  refundButtonStyle?: Object;
+  refundButtonTitle?: string;
+  informationStyle?: Object;
+  generateURCStyle?: Object;
+  flipflopLogoStyle?: Object;
+  onStart?: () => void;
+  onError?: (error: string) => void;
+  onSuccess?: (data: SuccessResponseData) => void;
+  onRefundStart?: () => void;
+  onRefundError?: (error: string) => void;
+  onRefundSuccess?: (data: SuccessResponseData) => void;
+};
+
+export type RefundButtonProps = {
+  mintAddress: string;
+  wallet: AnchorWallet;
+  connection: Connection;
+  tokenInfo: {tokenName: string, tokenSymbol: string};
   buttonTitle?: string;
   buttonStyle?: Object;
   informationStyle?: Object;

@@ -17,7 +17,8 @@ export const SYSTEM_CONFIG_SEEDS = "system_config_v1.1";
 export const REFERRAL_CODE_SEED = "referral_code";
 export const CODE_ACCOUNT_SEEDS = "code_account";
 
+export const SOLANA_RPC = 'https://api.devnet.solana.com';
 export const FLIPFLOP_BASE_URL = "https://test.flipflop.plus";
-export const SUBGRAPH_URL = 'https://gateway.thegraph.com/api/subgraphs/id/7XcwHxUun9pcX3nrBwrDdAaWQEFd4fwkwvCjHK6LxvEs'; // 'https://api.studio.thegraph.com/query/61629/proof_of_mint/version/latest'
-export const THEGRAPH_API_KEY = '143b826715cb1a3fe26419d02a5d44a3';
+export const SUBGRAPH_URL = 'https://data.flipflop.plus/subgraphs/name/my_project/'; //'https://gateway.thegraph.com/api/subgraphs/id/7XcwHxUun9pcX3nrBwrDdAaWQEFd4fwkwvCjHK6LxvEs'; // 'https://api.studio.thegraph.com/query/61629/proof_of_mint/version/latest'
+// export const THEGRAPH_API_KEY = '143b826715cb1a3fe26419d02a5d44a3';
 export const MAX_URC_USAGE_COUNT = 50;

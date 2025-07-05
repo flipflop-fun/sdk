@@ -7,8 +7,8 @@
     "jsx": "react",
     "declaration": true,
     "moduleResolution": "node",
-    "noUnusedLocals": true, // 
-    "noUnusedParameters": true, // 
+    // "noUnusedLocals": true, // 
+    // "noUnusedParameters": true, // 
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,

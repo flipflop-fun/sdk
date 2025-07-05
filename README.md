@@ -223,7 +223,7 @@ npm install
 npm run build
 
 # Run in development mode
-npm run dev
+npm link
 ```
 
 ## 🌐 Browser Support

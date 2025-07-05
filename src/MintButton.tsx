@@ -9,35 +9,16 @@ import { InitiazlizedTokenData, MintButtonProps, SuccessResponseData } from './t
 import FlipflopLogo from './FlipflopLogo';
 import { queryInitializeTokenEventBySearch } from './graphql';
 import { ApolloProvider, useQuery } from '@apollo/client';
-import { client } from '.';
-
-const defaultButtonStyle = {
-  padding: '10px',
-  border: '1px solid #ccc',
-  cursor: 'pointer',
-};
-
-const defaultInformationStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  fontSize: '12px',
-}
-
-const defaultGenerateURCStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  fontSize: '14px',
-}
-
-const defaultFlipflopLogoStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-}
+import { client, RefundButton } from '.';
+import { defaultFlipflopLogoStyle, defaultGenerateURCStyle, defaultInformationStyle, defaultMintButtonStyle, defaultRefundButtonStyle } from './types/styles';
 
 const MintButtonInner: FC<MintButtonProps> = ({
   mintAddress,
   urcCode,
-  buttonStyle,
+  showRefundButton,
+  mintButtonStyle,
+  refundButtonStyle,
+  refundButtonTitle,
   informationStyle,
   generateURCStyle,
   flipflopLogoStyle,
@@ -47,6 +28,9 @@ const MintButtonInner: FC<MintButtonProps> = ({
   onStart,
   onError,
   onSuccess,
+  onRefundError,
+  onRefundSuccess,
+  onRefundStart,
 }) => {
   const [donateAmount, setDonateAmount] = React.useState(0);
   const [mintAmount, setMintAmount] = React.useState("0");
@@ -65,6 +49,10 @@ const MintButtonInner: FC<MintButtonProps> = ({
   useEffect(() => {
     const getTokenInfo = async () => {
       const tokenData = (data?.initializeTokenEventEntities as InitiazlizedTokenData[])[0];
+      if(!tokenData || tokenData.mint !== mintAddress) {
+        onError?.('Mint address is not matched');
+        return;
+      }
       setDonateAmount(parseFloat(tokenData.feeRate) / LAMPORTS_PER_SOL);
       setMintAmount((parseInt(tokenData.mintSizeEpoch) / LAMPORTS_PER_SOL).toLocaleString(undefined, {maximumFractionDigits: 2})); // ######
       setTokenSymbol(tokenData.tokenSymbol);
@@ -161,9 +149,22 @@ const MintButtonInner: FC<MintButtonProps> = ({
           <div style={{marginRight: '2px'}}>Donate {donateAmount} SOL and get ~{mintAmount} {tokenSymbol}</div>
           <a href={`${FLIPFLOP_BASE_URL}/token/${mintAddress}`} target='_blank'>[{tokenName}]</a>
         </div>
-        <div style={{...defaultButtonStyle, ...buttonStyle}} onClick={() => mint()}>
+        <div style={{...defaultMintButtonStyle, ...mintButtonStyle}} onClick={() => mint()}>
           <div>{buttonTitle ? buttonTitle : "Mint"}</div>
         </div>
+        {showRefundButton &&
+          <RefundButton
+            tokenInfo={{tokenName, tokenSymbol}}
+            mintAddress={mintAddress}
+            wallet={wallet}
+            connection={connection}
+            buttonStyle={refundButtonStyle}
+            buttonTitle={refundButtonTitle}
+            informationStyle={informationStyle}
+            onStart={onRefundStart}
+            onError={onRefundError}
+            onSuccess={onRefundSuccess}
+          />}
         <a style={{...defaultGenerateURCStyle, ...generateURCStyle}} href={`${FLIPFLOP_BASE_URL}/token/${mintAddress}`} target="_blank">
           Activiate my URC code
         </a>
@@ -178,7 +179,10 @@ const MintButtonInner: FC<MintButtonProps> = ({
 const MintButton: FC<MintButtonProps> = ({
   mintAddress,
   urcCode,
-  buttonStyle,
+  showRefundButton,
+  mintButtonStyle,
+  refundButtonStyle,
+  refundButtonTitle,
   informationStyle,
   generateURCStyle,
   flipflopLogoStyle,
@@ -188,13 +192,19 @@ const MintButton: FC<MintButtonProps> = ({
   onStart,
   onError,
   onSuccess,
+  onRefundStart,
+  onRefundError,
+  onRefundSuccess,
 }) => {
   return (
     <ApolloProvider client={client}>
       <MintButtonInner
         mintAddress={mintAddress}
         urcCode={urcCode}
-        buttonStyle={buttonStyle}
+        mintButtonStyle={mintButtonStyle}
+        refundButtonStyle={refundButtonStyle}
+        refundButtonTitle={refundButtonTitle}
+        showRefundButton={showRefundButton}
         informationStyle={informationStyle}
         generateURCStyle={generateURCStyle}
         flipflopLogoStyle={flipflopLogoStyle}
@@ -204,6 +214,9 @@ const MintButton: FC<MintButtonProps> = ({
         onStart={onStart}
         onError={onError}
         onSuccess={onSuccess}
+        onRefundStart={onRefundStart}
+        onRefundError={onRefundError}
+        onRefundSuccess={onRefundSuccess}
       />
     </ApolloProvider>
   )
