@@ -4,12 +4,13 @@ import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from './types/fair_mint_token';
 import idl from "./idl/fair_mint_token.json";
 import { defaultInformationStyle, defaultRefundButtonStyle } from './types/styles';
-import { FLIPFLOP_BASE_URL, SYSTEM_DEPLOYER } from './config';
+import { NETWORK_CONFIGS } from './config';
 import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { configAccount, mintAccount, processTransaction, refundAccountPda, systemConfigAccount } from './utils/web3';
 
 const RefundButton: FC<RefundButtonProps> = ({
+  network,
   mintAddress,
   buttonStyle,
   informationStyle,
@@ -33,7 +34,6 @@ const RefundButton: FC<RefundButtonProps> = ({
     }
     
     try {
-      // 获取用户的token account地址
       const userTokenAccount = await getAssociatedTokenAddress(
         new PublicKey(mintAddress),
         wallet.publicKey,
@@ -79,8 +79,8 @@ const RefundButton: FC<RefundButtonProps> = ({
       return;
     }
 
-    const _systemConfigAccount = systemConfigAccount(program, new PublicKey(SYSTEM_DEPLOYER));
-    const _protocolFeeAccount = new PublicKey(SYSTEM_DEPLOYER);
+    const _systemConfigAccount = systemConfigAccount(program, new PublicKey(NETWORK_CONFIGS[network].systemDeployer));
+    const _protocolFeeAccount = new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount);
     const _mintAddress = new PublicKey(mintAddress);
     const _configAccount = configAccount(program, _mintAddress);
     const _refundAccount = refundAccountPda(program, _mintAddress, wallet.publicKey);
@@ -149,7 +149,7 @@ const RefundButton: FC<RefundButtonProps> = ({
           tokenAccount: tokenAta.toBase58(),
           wsolAccount: payerWsolAta.toBase58(),
           tx: result.data?.tx,
-          tokenUrl: `${FLIPFLOP_BASE_URL}/token/${mintAddress}`,
+          tokenUrl: `${NETWORK_CONFIGS[network].frontendUrl}/token/${mintAddress}`,
         } as SuccessResponseData)
       } else {
         onError?.(result.message);
@@ -169,7 +169,7 @@ const RefundButton: FC<RefundButtonProps> = ({
     <div>
         <div style={{...defaultInformationStyle, ...informationStyle}}>
           <div style={{marginRight: '2px'}}>Burn {burnTokens} {tokenInfo.tokenSymbol}</div>
-          <a href={`${FLIPFLOP_BASE_URL}/token/${mintAddress}`} target='_blank'>[{tokenInfo.tokenName}]</a>
+          <a href={`${NETWORK_CONFIGS[network].frontendUrl}/token/${mintAddress}`} target='_blank'>[{tokenInfo.tokenName}]</a>
         </div>
         <div style={{...defaultRefundButtonStyle, ...buttonStyle}} onClick={() => refund()}>
           <div>{buttonTitle ? buttonTitle : "Refund"}</div>

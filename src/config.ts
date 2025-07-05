@@ -1,13 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
+import { NetworkConfig, NetworkConfigs } from "./types/common";
 
-export const addressLookupTableAddress = new PublicKey("EebRqpLtUgjX17pJJNNbd6ngtYa34VGa51oYsibwJRXy");
-export const cpSwapProgram = new PublicKey("CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"); // devnet
-export const cpSwapConfigAddress = new PublicKey("9zSzfkYy6awexsHvmggeH36pfVUdDGyCcwmjT3AQPBj6"); // find address on devnet
-export const createPoolFeeReceive = new PublicKey("G11FKBRaAkHAKuLCgLM6K6NUc9rTjPAznRCjZifrTQe2"); // find address on devnet
-
-export const SYSTEM_DEPLOYER = 'CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79';
-export const PROTOCOL_FEE_ACCOUNT = "CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79";
-export const TOKEN_METADATA_PROGRAM_ID = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+// PDA Seeds
 export const METADATA_SEED = "metadata";
 export const MINT_SEED = "fair_mint";
 export const CONFIG_DATA_SEED = "config_data";
@@ -17,8 +11,30 @@ export const SYSTEM_CONFIG_SEEDS = "system_config_v1.1";
 export const REFERRAL_CODE_SEED = "referral_code";
 export const CODE_ACCOUNT_SEEDS = "code_account";
 
-export const SOLANA_RPC = 'https://api.devnet.solana.com';
-export const FLIPFLOP_BASE_URL = "https://test.flipflop.plus";
-export const SUBGRAPH_URL = 'https://data.flipflop.plus/subgraphs/name/my_project/'; //'https://gateway.thegraph.com/api/subgraphs/id/7XcwHxUun9pcX3nrBwrDdAaWQEFd4fwkwvCjHK6LxvEs'; // 'https://api.studio.thegraph.com/query/61629/proof_of_mint/version/latest'
-// export const THEGRAPH_API_KEY = '143b826715cb1a3fe26419d02a5d44a3';
 export const MAX_URC_USAGE_COUNT = 50;
+
+export const NETWORK_CONFIGS: NetworkConfigs = {
+  devnet: {
+    solanaRpc: 'https://api.devnet.solana.com',
+    frontendUrl: "https://test.flipflop.fun",
+    systemDeployer: new PublicKey('CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79'),
+    protocolFeeAccount: new PublicKey("CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79"),
+    tokenMetadataProgramId: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+    cpSwapProgram: new PublicKey("CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"), // devnet
+    cpSwapConfigAddress: new PublicKey("9zSzfkYy6awexsHvmggeH36pfVUdDGyCcwmjT3AQPBj6"), // find address on devnet
+    createPoolFeeReceive: new PublicKey("G11FKBRaAkHAKuLCgLM6K6NUc9rTjPAznRCjZifrTQe2"), // find address on devnet
+    addressLookupTableAddress: new PublicKey("EebRqpLtUgjX17pJJNNbd6ngtYa34VGa51oYsibwJRXy"),
+  } as NetworkConfig,
+  mainnet: {
+    solanaRpc: 'https://api.mainnet-beta.solana.com',
+    frontendUrl: "https://app.flipflop.fun",
+    systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'),
+    protocolFeeAccount: new PublicKey("7x75mM5g8wx87bhjxhWKJPSb5mUboPGBWhRWA1AUBXmb"),
+    tokenMetadataProgramId: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+    cpSwapProgram: new PublicKey("CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"),
+    cpSwapConfigAddress: new PublicKey("D4FPEruKEHrG5TenZ2mpDGEfu1iUvTiqBxvpU8HLBvC2"),
+    createPoolFeeReceive: new PublicKey("DNXgeM9EiiaAbaWvwjHj9fQQLAX5ZsfHyvmYUNRAdNC8"),
+    addressLookupTableAddress: new PublicKey("7DK7pmNkUeeFB3yxt6bJcPCWcG4L3AdCe2WZaBguy9sq"),
+  } as NetworkConfig,
+};
+

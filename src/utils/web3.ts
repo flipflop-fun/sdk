@@ -1,10 +1,10 @@
 import { PublicKey, Connection, ComputeBudgetProgram, AddressLookupTableAccount, VersionedTransaction, TransactionMessage, AccountInfo, BlockhashWithExpiryBlockHeight, Transaction } from "@solana/web3.js";
-import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, cpSwapConfigAddress, cpSwapProgram, createPoolFeeReceive, FLIPFLOP_BASE_URL, METADATA_SEED, MINT_SEED, PROTOCOL_FEE_ACCOUNT, REFERRAL_CODE_SEED, REFERRAL_SEED, REFUND_SEEDS, SOLANA_RPC, SYSTEM_CONFIG_SEEDS, SYSTEM_DEPLOYER, TOKEN_METADATA_PROGRAM_ID } from "../config";
+import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, METADATA_SEED, MINT_SEED, NETWORK_CONFIGS, REFERRAL_CODE_SEED, REFERRAL_SEED, REFUND_SEEDS, SYSTEM_CONFIG_SEEDS } from "../config";
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from '../types/fair_mint_token';
 import idl from "../idl/fair_mint_token.json";
 import { Buffer } from 'buffer';
-import { RemainingAccount, ResponseData, SuccessResponseData } from "../types/common";
+import { NetworkConfigs, RemainingAccount, ResponseData, SuccessResponseData } from "../types/common";
 import { BN } from "@coral-xyz/anchor";
 import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { getAuthAddress, getOrcleAccountAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress } from "./pda";
@@ -16,12 +16,12 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 export const BN_MILLION = new BN(1000000);
 export const BN_LAMPORTS_PER_SOL = new BN(1000000000);
 
-export const connection = new Connection(
-  SOLANA_RPC,
+export const connection = (network: keyof NetworkConfigs) => new Connection(
+  NETWORK_CONFIGS[network].solanaRpc,
   'confirmed',
 );
 
-export const updateProgramProvider = (keypair: anchor.web3.Keypair) => {
+export const updateProgramProvider = (keypair: anchor.web3.Keypair, network: keyof NetworkConfigs) => {
   const newProvider = new anchor.AnchorProvider(
     connection as unknown as anchor.web3.Connection,
     {
@@ -85,13 +85,13 @@ export const refundAccountPda = (program:anchor.Program<FairMintToken>, mintAcco
     program.programId,
   )[0];
 
-export const getReferralDataByCodeHash = async (program:anchor.Program<FairMintToken>, codeHash: PublicKey): Promise<ResponseData> => {
+export const getReferralDataByCodeHash = async (network: keyof NetworkConfigs, program:anchor.Program<FairMintToken>, codeHash: PublicKey): Promise<ResponseData> => {
   const [codeAccountPda] = PublicKey.findProgramAddressSync(
     [Buffer.from(CODE_ACCOUNT_SEEDS), codeHash.toBuffer()],
     program.programId,
   );
 
-  const codeAccountInfo = await connection.getAccountInfo(codeAccountPda);
+  const codeAccountInfo = await connection(network).getAccountInfo(codeAccountPda);
   if (!codeAccountInfo) {
     return {
       success: false,
@@ -101,7 +101,7 @@ export const getReferralDataByCodeHash = async (program:anchor.Program<FairMintT
   const codeAccountData = await program.account.codeAccountData.fetch(codeAccountPda);
   const referralAccountPda = codeAccountData.referralAccount;
 
-  const referralAccountInfo = await connection.getAccountInfo(referralAccountPda);
+  const referralAccountInfo = await connection(network).getAccountInfo(referralAccountPda);
   if (!referralAccountInfo) {
     return {
       success: false,
@@ -123,10 +123,10 @@ export const getTokenBalance = async (ata: PublicKey, connection: Connection): P
   return account.value.uiAmount;
 }
 
-export const getSystemConfig = async (program:anchor.Program<FairMintToken>): Promise<ResponseData> => {
+export const getSystemConfig = async (program:anchor.Program<FairMintToken>, network: keyof NetworkConfigs): Promise<ResponseData> => {
   try {
     const [systemConfigAccountPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from(SYSTEM_CONFIG_SEEDS), new PublicKey(SYSTEM_DEPLOYER).toBuffer()],
+      [Buffer.from(SYSTEM_CONFIG_SEEDS), new PublicKey(NETWORK_CONFIGS[network].systemDeployer).toBuffer()],
       program.programId,
     );
     const systemConfigData = await program.account.systemConfigData.fetch(systemConfigAccountPda);
@@ -208,13 +208,13 @@ export const numberStringToBN = (decimalStr: string): BN => {
 };
 
 // Create medatata PDA
-export const metadataAccountPda = (mintAccount: PublicKey) => PublicKey.findProgramAddressSync(
+export const metadataAccountPda = (network: keyof NetworkConfigs, mintAccount: PublicKey) => PublicKey.findProgramAddressSync(
   [
     Buffer.from(METADATA_SEED),
-    TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+    NETWORK_CONFIGS[network].tokenMetadataProgramId.toBuffer(),
     mintAccount.toBuffer()
   ],
-  TOKEN_METADATA_PROGRAM_ID,
+  NETWORK_CONFIGS[network].tokenMetadataProgramId,
 )[0];
 
 // export const fetchReferralData = async (inputCode: string): Promise<ResponseData> => {
@@ -435,6 +435,7 @@ export const processVersionedTransaction = async (
 }
 
 export const mintBy = async (
+  network: keyof NetworkConfigs,
   program: anchor.Program<FairMintToken>,
   mintAccount: PublicKey,
   configAccount: PublicKey,
@@ -505,7 +506,7 @@ export const mintBy = async (
     }
   }
 
-  const protocolWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, new PublicKey(PROTOCOL_FEE_ACCOUNT), false, TOKEN_PROGRAM_ID);
+  const protocolWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount), false, TOKEN_PROGRAM_ID);
 
   const wsolVaultAta = await getAssociatedTokenAddress(NATIVE_MINT, configAccount, true, TOKEN_PROGRAM_ID);
 
@@ -517,13 +518,16 @@ export const mintBy = async (
     [token0Mint, token1Mint] = [token1Mint, token0Mint];
     [token0Program, token1Program] = [token1Program, token0Program];
   }
-  
-  const [authority] = getAuthAddress(cpSwapProgram);
-  const [poolAddress] = getPoolAddress(cpSwapConfigAddress, token0Mint, token1Mint, cpSwapProgram);
-  const [lpMintAddress] = getPoolLpMintAddress(poolAddress, cpSwapProgram);
-  const [vault0] = getPoolVaultAddress(poolAddress, token0Mint, cpSwapProgram);
-  const [vault1] = getPoolVaultAddress(poolAddress, token1Mint, cpSwapProgram);
-  const [observationAddress] = getOrcleAccountAddress(poolAddress, cpSwapProgram);
+  const _cpSwapProgram = NETWORK_CONFIGS[network].cpSwapProgram;
+  const _cpSwapConfigAddress = NETWORK_CONFIGS[network].cpSwapConfigAddress;
+  const _createPoolFeeReceive = NETWORK_CONFIGS[network].createPoolFeeReceive;
+
+  const [authority] = getAuthAddress(_cpSwapProgram);
+  const [poolAddress] = getPoolAddress(_cpSwapConfigAddress, token0Mint, token1Mint, _cpSwapProgram);
+  const [lpMintAddress] = getPoolLpMintAddress(poolAddress, _cpSwapProgram);
+  const [vault0] = getPoolVaultAddress(poolAddress, token0Mint, _cpSwapProgram);
+  const [vault1] = getPoolVaultAddress(poolAddress, token1Mint, _cpSwapProgram);
+  const [observationAddress] = getOrcleAccountAddress(poolAddress, _cpSwapProgram);
 
   const creatorLpTokenAddress = getAssociatedTokenAddressSync(lpMintAddress, account.publicKey, false, TOKEN_PROGRAM_ID);
   const creatorToken0 = getAssociatedTokenAddressSync(token0Mint, account.publicKey, false, token0Program);
@@ -547,15 +551,15 @@ export const mintBy = async (
     protocolFeeAccount,
     protocolWsolVault: protocolWsolAta,
     poolState: poolAddress,
-    ammConfig: cpSwapConfigAddress,
-    cpSwapProgram: cpSwapProgram,
+    ammConfig: _cpSwapConfigAddress,
+    cpSwapProgram: _cpSwapProgram,
     token0Mint: token0Mint,
     token1Mint: token1Mint,
   };
 
   // =============== Use RemainingAccounts for initializing pool accounts, total 21 accounts ===============
   const remainingAccounts: RemainingAccount[] = [{
-    pubkey: cpSwapProgram, // <- 1
+    pubkey: _cpSwapProgram, // <- 1
     isWritable: false,
     isSigner: false,
   }, {
@@ -563,7 +567,7 @@ export const mintBy = async (
     isWritable: true,
     isSigner: true,
   }, {
-    pubkey: cpSwapConfigAddress, // <- 3
+    pubkey: _cpSwapConfigAddress, // <- 3
     isWritable: true,
     isSigner: false,
   }, {
@@ -607,7 +611,7 @@ export const mintBy = async (
     isWritable: true,
     isSigner: false,
   }, {
-    pubkey: createPoolFeeReceive, // <- 14
+    pubkey: _createPoolFeeReceive, // <- 14
     isWritable: true,
     isSigner: false,
   }, {
@@ -697,7 +701,7 @@ export const mintBy = async (
         tokenAccount: destinationAta.toBase58(),
         wsolAccount: destinationWsolAta.toBase58(),
         tx: result.data?.tx,
-        tokenUrl: `${FLIPFLOP_BASE_URL}/token/${mintAccount.toBase58()}`,
+        tokenUrl: `${NETWORK_CONFIGS[network].frontendUrl}/token/${mintAccount.toBase58()}`,
       } as SuccessResponseData
     }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -814,4 +818,39 @@ export const processTransaction = async (
     localStorage.removeItem('processing_tx');
     localStorage.removeItem('processing_timestamp');
   }
+}
+
+export const parseConfigData = async (program: anchor.Program<FairMintToken> , configAccount: PublicKey): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    program.account.tokenConfigData.fetch(configAccount).then((configData) => {
+      try {
+        resolve({
+          admin: configData.admin,
+          // feeVault: configData.feeVault.toBase58(),
+          feeRate: configData.feeRate,
+          // maxSupply: new anchor.BN(configData.maxSupply).div(new anchor.BN("1000000000")).toNumber(),
+          // targetEras: configData.targetEras,
+          // initialMintSize: configData.initialMintSize.toNumber() / 10**9,
+          // epochesPerEra: configData.epochesPerEra.toNumber(),
+          // targetSecondsPerEpoch: configData.targetSecondsPerEpoch.toNumber(),
+          // reduceRatio: configData.reduceRatio,
+          // tokenVault: configData.tokenVault.toBase58(),
+          // supply: configData.mintStateData.supply.toNumber() / 10**9,
+          // currentEra: configData.mintStateData.currentEra,
+          // currentEpoch: configData.mintStateData.currentEpoch.toNumber(),
+          // elapsedSecondsEpoch: configData.mintStateData.elapsedSecondsEpoch.toNumber(),
+          // startTimestampEpoch: configData.mintStateData.startTimestampEpoch.toNumber(),
+          // difficultyCoefficient: configData.mintStateData.difficultyCoefficientEpoch,
+          // lastDifficultyCoefficient: configData.mintStateData.lastDifficultyCoefficientEpoch,
+          mintSizeEpoch: configData.mintStateData.mintSizeEpoch,
+          // quantityMintedEpoch: new anchor.BN(configData.mintStateData.quantityMintedEpoch).div(new anchor.BN("1000000000")).toNumber(),
+          // targetMintSizeEpoch: new anchor.BN(configData.mintStateData.targetMintSizeEpoch).div(new anchor.BN("1000000000")).toNumber(),
+          // graduateEpoch: configData.mintStateData.graduateEpoch,
+        });
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
+    })
+  })
 }

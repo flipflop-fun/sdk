@@ -1,3 +1,4 @@
+import { BN } from "@coral-xyz/anchor";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey } from "@solana/web3.js";
 
@@ -21,55 +22,60 @@ export type SuccessResponseData = {
   tokenUrl: string,
 }
 
-export type InitiazlizedTokenData = {
-  id: string;
-  txId: string;
-  admin: string;
-  tokenId: string;
-  mint: string;
-  configAccount: string;
-  metadataAccount: string;
-  tokenVault: string;
-  timestamp: string;
-  status: number;
-  metadataTimestamp: string;
-  valueManager: string;
-  wsolVault: string;
-  graduateEpoch: string;
-
-  // TokenMetadata
-  tokenName: string;
-  tokenSymbol: string;
-  tokenUri: string;
-
-  // TokenMintState
-  supply: string;
-  currentEra: string;
-  currentEpoch: string;
-  elapsedSecondsEpoch: string;
-  startTimestampEpoch: string;
-  lastDifficultyCoefficientEpoch: string;
-  difficultyCoefficientEpoch: string;
-  mintSizeEpoch: string;
-  quantityMintedEpoch: string;
-  targetMintSizeEpoch: string;
-  totalMintFee: string;
-  totalReferrerFee: string;
-  totalTokens: string;
-
-  // InitializeTokenConfigData
-  targetEras: string;
-  epochesPerEra: string;
-  targetSecondsPerEpoch: string;
-  reduceRatio: string;
-  initialMintSize: string;
-  initialTargetMintSizePerEpoch: string;
-  feeRate: string;
-  liquidityTokensRatio: string;
-  startTimestamp: string;
-
-  tokenMetadata?: TokenMetadataIPFS;
+export type ConfigData = {
+  admin: PublicKey,
+  feeRate: BN,
+  mintSizeEpoch: BN,
 }
+// export type InitiazlizedTokenData = {
+//   id: string;
+//   txId: string;
+//   admin: string;
+//   tokenId: string;
+//   mint: string;
+//   configAccount: string;
+//   metadataAccount: string;
+//   tokenVault: string;
+//   timestamp: string;
+//   status: number;
+//   metadataTimestamp: string;
+//   valueManager: string;
+//   wsolVault: string;
+//   graduateEpoch: string;
+
+//   // TokenMetadata
+//   tokenName: string;
+//   tokenSymbol: string;
+//   tokenUri: string;
+
+//   // TokenMintState
+//   supply: string;
+//   currentEra: string;
+//   currentEpoch: string;
+//   elapsedSecondsEpoch: string;
+//   startTimestampEpoch: string;
+//   lastDifficultyCoefficientEpoch: string;
+//   difficultyCoefficientEpoch: string;
+//   mintSizeEpoch: string;
+//   quantityMintedEpoch: string;
+//   targetMintSizeEpoch: string;
+//   totalMintFee: string;
+//   totalReferrerFee: string;
+//   totalTokens: string;
+
+//   // InitializeTokenConfigData
+//   targetEras: string;
+//   epochesPerEra: string;
+//   targetSecondsPerEpoch: string;
+//   reduceRatio: string;
+//   initialMintSize: string;
+//   initialTargetMintSizePerEpoch: string;
+//   feeRate: string;
+//   liquidityTokensRatio: string;
+//   startTimestamp: string;
+
+//   tokenMetadata?: TokenMetadataIPFS;
+// }
 
 export type TokenMetadataIPFS = {
   name?: string;
@@ -91,12 +97,14 @@ export type TokenMetadataExtensions = {
 }
 
 export type MintButtonProps = {
+  network: keyof NetworkConfigs;
   mintAddress: string;
   urcCode: string;
   wallet: AnchorWallet;
   connection: Connection;
   showRefundButton: boolean;
-  buttonTitle?: string;
+  showUrcButton: boolean;
+  mintButtonTitle?: string;
   mintButtonStyle?: Object;
   refundButtonStyle?: Object;
   refundButtonTitle?: string;
@@ -112,6 +120,7 @@ export type MintButtonProps = {
 };
 
 export type RefundButtonProps = {
+  network: keyof NetworkConfigs;
   mintAddress: string;
   wallet: AnchorWallet;
   connection: Connection;
@@ -125,3 +134,20 @@ export type RefundButtonProps = {
   onError?: (error: string) => void;
   onSuccess?: (data: SuccessResponseData) => void;
 };
+
+export interface NetworkConfig {
+  solanaRpc: string;
+  frontendUrl: string;
+  systemDeployer: PublicKey;
+  protocolFeeAccount: PublicKey;
+  tokenMetadataProgramId: PublicKey;
+  cpSwapProgram: PublicKey;
+  cpSwapConfigAddress: PublicKey;
+  createPoolFeeReceive: PublicKey;
+  addressLookupTableAddress: PublicKey;
+}
+
+export interface NetworkConfigs {
+  devnet: NetworkConfig;
+  mainnet: NetworkConfig;
+}
