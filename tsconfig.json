@@ -2,13 +2,13 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "esnext",
-    "lib": ["es2020", "dom"],  // 或者使用 ["es2020", "dom", "es2020.promise"]
+    "lib": ["es2020", "dom"],
     "target": "es2020",
     "jsx": "react",
     "declaration": true,
     "moduleResolution": "node",
-    // "noUnusedLocals": true, // 
-    // "noUnusedParameters": true, // 
+    "noUnusedLocals": true, // 
+    "noUnusedParameters": true, // 
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,

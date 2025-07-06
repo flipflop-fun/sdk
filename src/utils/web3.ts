@@ -23,7 +23,7 @@ export const connection = (network: keyof NetworkConfigs) => new Connection(
 
 export const updateProgramProvider = (keypair: anchor.web3.Keypair, network: keyof NetworkConfigs) => {
   const newProvider = new anchor.AnchorProvider(
-    connection as unknown as anchor.web3.Connection,
+    connection(network) as unknown as anchor.web3.Connection,
     {
       publicKey: keypair.publicKey,
       signTransaction: async (tx) => {
@@ -216,56 +216,6 @@ export const metadataAccountPda = (network: keyof NetworkConfigs, mintAccount: P
   ],
   NETWORK_CONFIGS[network].tokenMetadataProgramId,
 )[0];
-
-// export const fetchReferralData = async (inputCode: string): Promise<ResponseData> => {
-//   try {
-//     const codeHash = getReferrerCodeHash(inputCode);
-//     const result = await getReferralDataByCodeHash(codeHash);
-//     if (!result.success) {
-//       return {
-//         success: false,
-//         message: result.message,
-//       }
-//     }
-//     if (result.data === null || result.data === undefined) {
-//       return {
-//         success: false,
-//         message: 'Referral data not found',
-//       }
-//     }
-//     const ataBalance = await getTokenBalance(result.data.referrerAta, connection) as number;
-
-//     const systemConfig = await getSystemConfig();
-//     if (!systemConfig.success) {
-//       return {
-//         success: false,
-//         message: systemConfig.message,
-//       }
-//     }
-//     if (systemConfig.data === null || systemConfig.data === undefined) {
-//       return {
-//         success: false,
-//         message: 'System config not found',
-//       }
-//     }
-
-//     return({
-//       success: true,
-//       data:{
-//         ...result.data,
-//         ...systemConfig.data,
-//         tokenBalance: ataBalance,
-//         // acturalPay: acturalPay,
-//         // urcProviderBonus: urcProviderBonus,
-//       }});
-//   } catch (error: unknown) {
-//     console.error('Error fetching referral data:', error);
-//     return {
-//       success: false,
-//       message: 'Error fetching referral data',
-//     }
-//   }
-// }
 
 export const getSolanaBalance = async (publicKey: PublicKey, connection: Connection): Promise<number> => {
   return await connection.getBalance(publicKey);

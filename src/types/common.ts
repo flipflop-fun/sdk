@@ -111,9 +111,9 @@ export type MintButtonProps = {
   informationStyle?: Object;
   generateURCStyle?: Object;
   flipflopLogoStyle?: Object;
-  onStart?: () => void;
-  onError?: (error: string) => void;
-  onSuccess?: (data: SuccessResponseData) => void;
+  onMintStart?: () => void;
+  onMintError?: (error: string) => void;
+  onMintSuccess?: (data: SuccessResponseData) => void;
   onRefundStart?: () => void;
   onRefundError?: (error: string) => void;
   onRefundSuccess?: (data: SuccessResponseData) => void;

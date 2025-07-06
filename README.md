@@ -34,10 +34,39 @@ function App() {
 
   return (
     <MintButton
+      network="devnet" // or "mainnet"
       mintAddress="your_token_mint_address"
       urcCode="your_urc_code"
       wallet={wallet}
       connection={connection}
+      showRefundButton={true}
+      showUrcButton={true}
+      mintButtonTitle="Mint"
+      mintButtonStyle={{
+        backgroundColor: 'green',
+      }}
+      refundButtonTitle="Refund"
+      refundButtonStyle={{
+        backgroundColor: 'red',
+      }}
+      onMintStart={() => {
+        console.log('Mint started');
+      }}
+      onMintError={(error) => {
+        console.error('Mint error:', error);
+      }}
+      onMintSuccess={(data) => {
+        console.log('Mint success:', data);
+      }}
+      onRefundStart={() => {
+        console.log('Refund started');
+      }}
+      onRefundError={(error) => {
+        console.error('Refund error:', error);
+      }}
+      onRefundSuccess={(data) => {
+        console.log('Refund success:', data);
+      }}
     />
   );
 }
@@ -50,43 +79,59 @@ The primary component for integrating Proof of Mint functionality.
 #### Props
 | Property           | Type                 | Required | Default     | Description                     |
 |--------------------|----------------------|----------|-------------|---------------------------------|
+| network            | "devnet" \| "mainnet" | ✅       | -           | The Solana network              |
 | mintAddress        | string               | ✅        | -           | The Solana token mint address   |
 | urcCode            | string               | ✅        | -           | Unique referral code for tracking |
 | wallet             | AnchorWallet         | ✅        | -           | Connected Solana wallet instance |
 | connection         | Connection           | ✅        | -           | Solana RPC connection           |
-| buttonTitle        | string               | ❌        | "Mint"      | Custom button text              |
-| buttonStyle        | CSSProperties        | ❌        | See defaults | Custom button styling          |
+| showRefundButton   | boolean              | ✅        | -           | Show refund button              |
+| showUrcButton      | boolean              | ✅        | -           | Show URC button                 |
+| mintButtonTitle    | string               | ❌        | "Mint"      | Custom mint button text         |
+| mintButtonStyle    | CSSProperties        | ❌        | See defaults | Custom mint button styling     |
+| refundButtonTitle  | string               | ❌        | "Refund"    | Custom refund button text       |
+| refundButtonStyle  | CSSProperties        | ❌        | See defaults | Custom refund button styling   |
 | informationStyle   | CSSProperties        | ❌        | See defaults | Token info display styling      |
 | generateURCStyle   | CSSProperties        | ❌        | See defaults | URC generation link styling     |
 | flipflopLogoStyle  | CSSProperties        | ❌        | See defaults | FlipFlop logo styling           |
-| onStart            | () => void           | ❌        | -           | Callback fired when minting begins |
-| onError            | (error: string) => void | ❌     | -           | Error handling callback         |
-| onSuccess          | (data: SuccessResponseData) => void | ❌ | -       | Success callback with transaction data |
+| onMintStart        | () => void           | ❌        | -           | Callback fired when minting begins |
+| onMintError        | (error: string) => void | ❌     | -           | Error handling callback for minting  |
+| onMintSuccess      | (data: SuccessResponseData) => void | ❌ | -       | Success callback with transaction data |
+| onRefundStart        | () => void           | ❌        | -           | Callback fired when refunding begins |
+| onRefundError        | (error: string) => void | ❌     | -           | Error handling callback for refunding     |
+| onRefundSuccess      | (data: SuccessResponseData) => void | ❌ | -       | Success callback with transaction data |
 
 #### Types
-
 ```
 interface SuccessResponseData {
-  signature: string;
-  mintAddress: string;
-  amount: number;
-  timestamp: number;
+  publicKey: string; // The user's base account
+  tokenAccount: string; // The user's token account
+  wsolAccount: string: // The user's WSOL account
+  tx: string; // Transaction hash
+  tokenUrl: string;
 }
 
-interface MintButtonProps {
+interface MintButtonProps = {
+  network: keyof NetworkConfigs;
   mintAddress: string;
   urcCode: string;
   wallet: AnchorWallet;
   connection: Connection;
-  buttonTitle?: string;
-  buttonStyle?: React.CSSProperties;
-  informationStyle?: React.CSSProperties;
-  generateURCStyle?: React.CSSProperties;
-  flipflopLogoStyle?: React.CSSProperties;
-  onStart?: () => void;
-  onError?: (error: string) => void;
-  onSuccess?: (data: SuccessResponseData) => void;
-}
+  showRefundButton: boolean;
+  showUrcButton: boolean;
+  mintButtonTitle?: string;
+  mintButtonStyle?: Object;
+  refundButtonStyle?: Object;
+  refundButtonTitle?: string;
+  informationStyle?: Object;
+  generateURCStyle?: Object;
+  flipflopLogoStyle?: Object;
+  onMintStart?: () => void;
+  onMintError?: (error: string) => void;
+  onMintSuccess?: (data: SuccessResponseData) => void;
+  onRefundStart?: () => void;
+  onRefundError?: (error: string) => void;
+  onRefundSuccess?: (data: SuccessResponseData) => void;
+};
 ```
 
 ## 🎨 Styling & Customization
@@ -94,62 +139,106 @@ interface MintButtonProps {
 The component comes with sensible defaults that can be overridden:
 
 ```
-const defaultStyles = {
-  button: {
-    padding: '10px',
-    border: '1px solid #ccc',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    backgroundColor: '#ffffff',
-    transition: 'all 0.2s ease-in-out',
-  },
-  information: {
-    display: 'flex',
-    justifyContent: 'center',
-    fontSize: '12px',
-    color: '#666666',
-  },
-  generateURC: {
-    display: 'flex',
-    justifyContent: 'center',
-    fontSize: '14px',
-    color: '#0066cc',
-  },
-  flipflopLogo: {
-    display: 'flex',
-    justifyContent: 'center',
-    opacity: 0.8,
-  },
+export const defaultMintButtonStyle = {
+  padding: '10px',
+  border: '1px solid #ccc',
+  cursor: 'pointer',
 };
+
+export const defaultRefundButtonStyle = {
+  padding: '10px',
+  border: '1px solid #ccc',
+  cursor: 'pointer',
+}
+
+export const defaultInformationStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  fontSize: '12px',
+}
+
+export const defaultGenerateURCStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  fontSize: '14px',
+}
+
+export const defaultFlipflopLogoStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+}
 ```
 
 ### Custom Styling Example
 ```
-<MintButton
-  mintAddress="your_mint_address"
-  urcCode="your_urc_code"
-  wallet={wallet}
-  connection={connection}
-  buttonTitle="Mint NFT"
-  buttonStyle={{
-    padding: '16px 32px',
-    backgroundColor: '#6366f1',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.2s ease-in-out',
-  }}
-  informationStyle={{
-    marginTop: '12px',
-    padding: '8px',
-    backgroundColor: '#f8fafc',
-    borderRadius: '6px',
-    fontSize: '14px',
-  }}
-/>
+  <MintButton
+    network={network}
+    mintAddress={mintAddress}
+    urcCode={urcCode}
+    wallet={anchorWallet}
+    connection={connection}
+    onMintStart={onStart}
+    onMintError={onError}
+    onMintSuccess={onSuccess}
+    onRefundSuccess={onSuccess}
+    onRefundStart={onStart}
+    onRefundError={onError}
+    mintButtonTitle="Donate"
+    mintButtonStyle={{
+      width: '100%',
+      backgroundColor: 'green',
+      color: 'white',
+      border: '1px solid white',
+      borderRadius: '5px',
+      padding: '10px',
+      margin: 'auto',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      letterSpacing: '1px',
+    }}
+    showRefundButton={true}
+    showUrcButton={false}
+    refundButtonTitle="Refund"
+    refundButtonStyle={{
+      width: '100%',
+      backgroundColor: 'red',
+      color: 'white',
+      border: '1px solid white',
+      borderRadius: '5px',
+      padding: '10px',
+      margin: 'auto',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      letterSpacing: '1px',
+    }}
+    informationStyle={{
+      display: 'flex',
+      justifyContent: 'left',
+      color: 'gray',
+      fontSize: '14px',
+      textAlign: 'left',
+      margin: '10px auto'
+    }}
+    generateURCStyle={{
+      display: 'flex',
+      justifyContent: 'center',
+      color: 'gray',
+      margin: '10px auto'
+    }}
+    flipflopLogoStyle={{
+      marginTop: '20px'
+    }}
+  />
 ```
 
 ## 🔧 Advanced Usage
@@ -168,7 +257,8 @@ const handleMintError = (error: string) => {
 
 <MintButton
   // ... other props
-  onError={handleMintError}
+  onMintError={handleMintError}
+  onRefundError={handleRefundError}
 />
 ```
 ### Success Handling
@@ -188,7 +278,8 @@ const handleMintSuccess = (data: SuccessResponseData) => {
 
 <MintButton
   // ... other props
-  onSuccess={handleMintSuccess}
+  onMintSuccess={handleMintSuccess}
+  onRefundSuccess={handleRefundSuccess}
 />
 ```
 
@@ -209,6 +300,7 @@ const [isMinting, setIsMinting] = useState(false);
   onError={() => setIsMinting(false)}
 />
 ```
+
 ## 🏗️ Development
 ### Building from Source
 ```
@@ -222,69 +314,67 @@ npm install
 # Build the project
 npm run build
 
-# Run in development mode
+# link the package
 npm link
+
+# Then in the example project, run:
+npm link @flipflop-fun/sdk
 ```
 
-## 🌐 Browser Support
-- Chrome/Chromium 88+
-- Firefox 85+
-- Safari 14+
-- Edge 88+
-## 📖 Examples
-### Next.js Integration
-```
-// pages/_app.tsx
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
-
-const network = WalletAdapterNetwork.Mainnet;
-const endpoint = clusterApiUrl(network);
-const wallets = [new PhantomWalletAdapter()];
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <Component {...pageProps} />
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
-}
-```
 ### React + Vite Integration
+If run in vite, and got error: `Buffer is not defined`, please add following code:
 ```
 // main.tsx
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer';
+import process from 'process';
 
-// Polyfill for browser compatibility
-window.Buffer = Buffer;
+window.global = window;
+window.Buffer = Buffer;
+window.process = process;
 
 // Your app code
 import App from './App';
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-## 🚨 Common Issues
-### Buffer is not defined
+And in `vite.config.ts`, add:
 ```
-npm install buffer
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+export default defineConfig({
+  // ...
+  resolve: {
+    alias: {
+      stream: 'stream-browserify',
+      buffer: 'buffer'
+    }
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      },
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true
+        })
+      ]
+    },
+    force: true,
+    include: [
+      '@solana/web3.js',
+      '@solana/spl-token',
+      '@solana/spl-token-metadata',
+      '@flipflop-sdk/tools',
+      'buffer'
+    ],
+    // ...
+  }
+})
 ```
-```
-// Add to your bundler config or main entry file
-import { Buffer } from 'buffer';
-window.Buffer = Buffer;
-```
-### Wallet Connection Issues
-Ensure your wallet provider is properly configured and the user has connected their wallet before rendering the MintButton.
-
-### Network Mismatch
-Verify that your connection endpoint matches the network where your token is deployed.
 
 ## 🤝 Contributing
 We welcome contributions! Please see our Contributing Guide for details.

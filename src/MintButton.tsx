@@ -8,7 +8,7 @@ import { MAX_URC_USAGE_COUNT, NETWORK_CONFIGS } from './config';
 import { ConfigData, MintButtonProps, SuccessResponseData } from './types/common';
 import FlipflopLogo from './FlipflopLogo';
 import { RefundButton } from '.';
-import { defaultFlipflopLogoStyle, defaultGenerateURCStyle, defaultInformationStyle, defaultMintButtonStyle, defaultRefundButtonStyle } from './types/styles';
+import { defaultFlipflopLogoStyle, defaultGenerateURCStyle, defaultInformationStyle, defaultMintButtonStyle } from './types/styles';
 
 const MintButtonInner: FC<MintButtonProps> = ({
   network,
@@ -25,9 +25,9 @@ const MintButtonInner: FC<MintButtonProps> = ({
   mintButtonTitle,
   wallet,
   connection,
-  onStart,
-  onError,
-  onSuccess,
+  onMintStart,
+  onMintError,
+  onMintSuccess,
   onRefundError,
   onRefundSuccess,
   onRefundStart,
@@ -46,7 +46,7 @@ const MintButtonInner: FC<MintButtonProps> = ({
     const getTokenInfo = async () => {
       // Cancel get tokenData from graphql, use configAccount
       if (!mintAddress || mintAddress === '') {
-        onError?.('Mint address is not provided');
+        onMintError?.('Mint address is not provided');
         return;
       }
 
@@ -61,7 +61,7 @@ const MintButtonInner: FC<MintButtonProps> = ({
         setTokenSymbol(_metadata.symbol);
         setTokenName(_metadata.name);
       } else {
-        onError?.('Metadata is not found');
+        onMintError?.('Metadata is not found');
       }
     }
     getTokenInfo();
@@ -81,22 +81,22 @@ const MintButtonInner: FC<MintButtonProps> = ({
     });
   }
   const mint = async () => {
-    onStart?.();
+    onMintStart?.();
     if (!wallet) {
-      onError?.('Wallet is not connected');
+      onMintError?.('Wallet is not connected');
       return;
     }
     if (!mintAddress || mintAddress === '') {
-      onError?.('Mint address is not provided');
+      onMintError?.('Mint address is not provided');
       return;
     }
     if (!urcCode || urcCode === '') {
-      onError?.('URC code is not provided');
+      onMintError?.('URC code is not provided');
       return;
     }
 
     if (!provider.wallet) {
-      onError?.('Wallet is not connected');
+      onMintError?.('Wallet is not connected');
       return;
     }
 
@@ -107,16 +107,16 @@ const MintButtonInner: FC<MintButtonProps> = ({
     const _codeHash = getReferrerCodeHash(program, urcCode);
     const _referralData = await getReferralDataByCodeHash(network, program, _codeHash);
     if (!_referralData.success) {
-      onError?.('Fail to get URC data, please use another one.');
+      onMintError?.('Fail to get URC data, please use another one.');
       return;
     }
     const _referrerMain = _referralData.data.referrerMain;
     if (tokenData.admin.toBase58() !== _referrerMain.toBase58() && _referralData.data.usageCount >= MAX_URC_USAGE_COUNT) {
-      onError?.('URC code is used up, please use another one.');
+      onMintError?.('URC code is used up, please use another one.');
       return;
     }
     if (_referrerMain.toBase58() === provider.wallet.publicKey.toBase58()) {
-      onError?.('Referrer can not be same as wallet');
+      onMintError?.('Referrer can not be same as wallet');
       return;
     }
     const _referralAccount = referralAccount(program, _mintAddress, _referrerMain);
@@ -138,10 +138,10 @@ const MintButtonInner: FC<MintButtonProps> = ({
       _protocolFeeAccount
     );
     if (!response.success) {
-      onError?.(response.data.message);
+      onMintError?.(response.data.message);
       return;
     } else {
-      onSuccess?.(response.data as SuccessResponseData);
+      onMintSuccess?.(response.data as SuccessResponseData);
       return;
     }
   }
@@ -199,9 +199,9 @@ const MintButton: FC<MintButtonProps> = ({
   mintButtonTitle,
   wallet,
   connection,
-  onStart,
-  onError,
-  onSuccess,
+  onMintStart,
+  onMintError,
+  onMintSuccess,
   onRefundStart,
   onRefundError,
   onRefundSuccess,
@@ -222,9 +222,9 @@ const MintButton: FC<MintButtonProps> = ({
         mintButtonTitle={mintButtonTitle}
         wallet={wallet}
         connection={connection}
-        onStart={onStart}
-        onError={onError}
-        onSuccess={onSuccess}
+        onMintStart={onMintStart}
+        onMintError={onMintError}
+        onMintSuccess={onMintSuccess}
         onRefundStart={onRefundStart}
         onRefundError={onRefundError}
         onRefundSuccess={onRefundSuccess}
