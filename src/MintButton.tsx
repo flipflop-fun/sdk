@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from './types/fair_mint_token';
@@ -10,7 +10,7 @@ import FlipflopLogo from './FlipflopLogo';
 import { RefundButton } from '.';
 import { defaultFlipflopLogoStyle, defaultGenerateURCStyle, defaultInformationStyle, defaultMintButtonStyle } from './types/styles';
 
-const MintButtonInner: FC<MintButtonProps> = ({
+const MintButton = ({
   network,
   mintAddress,
   urcCode,
@@ -31,7 +31,7 @@ const MintButtonInner: FC<MintButtonProps> = ({
   onRefundError,
   onRefundSuccess,
   onRefundStart,
-}) => {
+}: MintButtonProps): JSX.Element => {
   const [donateAmount, setDonateAmount] = React.useState(0);
   const [mintAmount, setMintAmount] = React.useState("0");
   const [tokenData, setTokenData] = React.useState<ConfigData>({} as ConfigData);
@@ -184,51 +184,4 @@ const MintButtonInner: FC<MintButtonProps> = ({
   );
 };
 
-const MintButton: FC<MintButtonProps> = ({
-  network,
-  mintAddress,
-  urcCode,
-  showRefundButton,
-  showUrcButton,
-  mintButtonStyle,
-  refundButtonStyle,
-  refundButtonTitle,
-  informationStyle,
-  generateURCStyle,
-  flipflopLogoStyle,
-  mintButtonTitle,
-  wallet,
-  connection,
-  onMintStart,
-  onMintError,
-  onMintSuccess,
-  onRefundStart,
-  onRefundError,
-  onRefundSuccess,
-}) => {
-  return (
-      <MintButtonInner
-        network={network}
-        mintAddress={mintAddress}
-        urcCode={urcCode}
-        mintButtonStyle={mintButtonStyle}
-        refundButtonStyle={refundButtonStyle}
-        refundButtonTitle={refundButtonTitle}
-        showRefundButton={showRefundButton}
-        showUrcButton={showUrcButton}
-        informationStyle={informationStyle}
-        generateURCStyle={generateURCStyle}
-        flipflopLogoStyle={flipflopLogoStyle}
-        mintButtonTitle={mintButtonTitle}
-        wallet={wallet}
-        connection={connection}
-        onMintStart={onMintStart}
-        onMintError={onMintError}
-        onMintSuccess={onMintSuccess}
-        onRefundStart={onRefundStart}
-        onRefundError={onRefundError}
-        onRefundSuccess={onRefundSuccess}
-      />
-  )
-}
 export default MintButton;

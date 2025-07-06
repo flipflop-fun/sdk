@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { RefundButtonProps, SuccessResponseData } from './types/common';
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from './types/fair_mint_token';
@@ -9,7 +9,7 @@ import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, get
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { configAccount, mintAccount, processTransaction, refundAccountPda, systemConfigAccount } from './utils/web3';
 
-const RefundButton: FC<RefundButtonProps> = ({
+const RefundButton = ({
   network,
   mintAddress,
   buttonStyle,
@@ -21,7 +21,7 @@ const RefundButton: FC<RefundButtonProps> = ({
   onStart,
   onError,
   onSuccess,
-}) => {
+}: RefundButtonProps): JSX.Element => {
   const [burnTokens, setBurnTokens] = React.useState("0");
 
   useEffect(() => {
