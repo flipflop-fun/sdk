@@ -2,7 +2,8 @@ import React, { JSX, useEffect } from 'react';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from './types/fair_mint_token';
-import idl from "./idl/fair_mint_token.json";
+import idl_devnet from "./idl/fair_mint_token_devnet.json";
+import idl_mainnet from "./idl/fair_mint_token_mainnet.json";
 import { cleanMetadata, configAccount, getLegacyTokenMetadata, getReferralDataByCodeHash, getReferrerCodeHash, metadataAccountPda, mintBy, parseConfigData, referralAccount, systemConfigAccount } from './utils/web3';
 import { MAX_URC_USAGE_COUNT, NETWORK_CONFIGS } from './config';
 import { ConfigData, MintButtonProps, SuccessResponseData } from './types/common';
@@ -12,6 +13,7 @@ import { defaultFlipflopLogoStyle, defaultGenerateURCStyle, defaultInformationSt
 
 const MintButton = ({
   network,
+  rpc,
   mintAddress,
   urcCode,
   showRefundButton,
@@ -40,7 +42,7 @@ const MintButton = ({
   const [tokenName, setTokenName] = React.useState('');
 
   const provider = new anchor.AnchorProvider(connection, wallet, { commitment: 'confirmed' });
-  const program = new anchor.Program<FairMintToken>(idl, provider);
+  const program = network === "devnet" ? new anchor.Program<FairMintToken>(idl_devnet, provider) : new anchor.Program<FairMintToken>(idl_mainnet, provider);
 
   useEffect(() => {
     const getTokenInfo = async () => {
@@ -49,7 +51,7 @@ const MintButton = ({
         onMintError?.('Mint address is not provided');
         return;
       }
-
+      // const programId = NETWORK_CONFIGS[network].programId;
       const _configAccount = configAccount(program, new PublicKey(mintAddress));
       const _metadata = await getMetadata();
       if (_metadata) {
@@ -99,13 +101,12 @@ const MintButton = ({
       onMintError?.('Wallet is not connected');
       return;
     }
-
     const _systemConfigAccount = systemConfigAccount(program, new PublicKey(NETWORK_CONFIGS[network].systemDeployer));
     const _protocolFeeAccount = new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount);
     const _mintAddress = new PublicKey(mintAddress);
     const _configAccount = configAccount(program, _mintAddress);
     const _codeHash = getReferrerCodeHash(program, urcCode);
-    const _referralData = await getReferralDataByCodeHash(network, program, _codeHash);
+    const _referralData = await getReferralDataByCodeHash(rpc, program, _codeHash);
     if (!_referralData.success) {
       onMintError?.('Fail to get URC data, please use another one.');
       return;

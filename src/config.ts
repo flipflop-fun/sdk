@@ -15,8 +15,8 @@ export const MAX_URC_USAGE_COUNT = 50;
 
 export const NETWORK_CONFIGS: NetworkConfigs = {
   devnet: {
-    solanaRpc: 'https://api.devnet.solana.com',
     frontendUrl: "https://test.flipflop.fun",
+    // programId: "8GM2N7qQjzMyhqewu8jpDgzUh2BJbtBxSY1WzSFeFm6U",
     systemDeployer: new PublicKey('CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79'),
     protocolFeeAccount: new PublicKey("CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79"),
     tokenMetadataProgramId: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
@@ -26,8 +26,8 @@ export const NETWORK_CONFIGS: NetworkConfigs = {
     addressLookupTableAddress: new PublicKey("EebRqpLtUgjX17pJJNNbd6ngtYa34VGa51oYsibwJRXy"),
   } as NetworkConfig,
   mainnet: {
-    solanaRpc: 'https://api.mainnet-beta.solana.com',
     frontendUrl: "https://app.flipflop.fun",
+    // programId: "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
     systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'),
     protocolFeeAccount: new PublicKey("7x75mM5g8wx87bhjxhWKJPSb5mUboPGBWhRWA1AUBXmb"),
     tokenMetadataProgramId: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),

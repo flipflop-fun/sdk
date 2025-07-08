@@ -2,7 +2,6 @@ import { PublicKey, Connection, ComputeBudgetProgram, AddressLookupTableAccount,
 import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, METADATA_SEED, MINT_SEED, NETWORK_CONFIGS, REFERRAL_CODE_SEED, REFERRAL_SEED, REFUND_SEEDS, SYSTEM_CONFIG_SEEDS } from "../config";
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from '../types/fair_mint_token';
-import idl from "../idl/fair_mint_token.json";
 import { Buffer } from 'buffer';
 import { NetworkConfigs, RemainingAccount, ResponseData, SuccessResponseData } from "../types/common";
 import { BN } from "@coral-xyz/anchor";
@@ -16,45 +15,48 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 export const BN_MILLION = new BN(1000000);
 export const BN_LAMPORTS_PER_SOL = new BN(1000000000);
 
-export const connection = (network: keyof NetworkConfigs) => new Connection(
-  NETWORK_CONFIGS[network].solanaRpc,
+export const connection = (rpc: string) => new Connection(
+  rpc,
   'confirmed',
 );
 
-export const updateProgramProvider = (keypair: anchor.web3.Keypair, network: keyof NetworkConfigs) => {
-  const newProvider = new anchor.AnchorProvider(
-    connection(network) as unknown as anchor.web3.Connection,
-    {
-      publicKey: keypair.publicKey,
-      signTransaction: async (tx) => {
-        if ('partialSign' in tx) {
-          tx.partialSign(keypair);
-        } else {
-          tx.sign([keypair]);
-        }
-        return tx;
-      },
-      signAllTransactions: async (txs) => {
-        txs.forEach(tx => {
-          if ('partialSign' in tx) {
-            tx.partialSign(keypair);
-          } else {
-            tx.sign([keypair]);
-          }
-        });
-        return txs;
-      },
-    },
-    { commitment: 'confirmed' }
-  );
+// export const updateProgramProvider = (keypair: anchor.web3.Keypair, rpc: string) => {
+//   const _connection = connection(rpc) as Connection;
+//   const newProvider = new anchor.AnchorProvider(
+//     _connection,
+//     {
+//       publicKey: keypair.publicKey,
+//       signTransaction: async (tx) => {
+//         if ('partialSign' in tx) {
+//           tx.partialSign(keypair);
+//         } else {
+//           tx.sign([keypair]);
+//         }
+//         return tx;
+//       },
+//       signAllTransactions: async (txs) => {
+//         txs.forEach(tx => {
+//           if ('partialSign' in tx) {
+//             tx.partialSign(keypair);
+//           } else {
+//             tx.sign([keypair]);
+//           }
+//         });
+//         return txs;
+//       },
+//     },
+//     { commitment: 'confirmed' }
+//   );
   
-  return {
-    provider: newProvider,
-    program: new anchor.Program<FairMintToken>(idl, newProvider),
-  }
-};
+//   return {
+//     provider: newProvider,
+//     program: new anchor.Program<FairMintToken>(idl, newProvider),
+//   }
+// };
 
 // export const program = new anchor.Program<FairMintToken>(idl, provider);
+
+
 export const mintAccount = (program: anchor.Program<FairMintToken>, tokenName: string, tokenSymbol: string) => PublicKey.findProgramAddressSync(
   [Buffer.from(MINT_SEED), Buffer.from(tokenName), Buffer.from(tokenSymbol.toLowerCase())],
   program.programId
@@ -85,13 +87,18 @@ export const refundAccountPda = (program:anchor.Program<FairMintToken>, mintAcco
     program.programId,
   )[0];
 
-export const getReferralDataByCodeHash = async (network: keyof NetworkConfigs, program:anchor.Program<FairMintToken>, codeHash: PublicKey): Promise<ResponseData> => {
+
+export const getReferralDataByCodeHash = async (
+  rpc: string,
+  program: anchor.Program<FairMintToken>,
+  codeHash: PublicKey
+): Promise<ResponseData> => {
   const [codeAccountPda] = PublicKey.findProgramAddressSync(
     [Buffer.from(CODE_ACCOUNT_SEEDS), codeHash.toBuffer()],
     program.programId,
   );
-
-  const codeAccountInfo = await connection(network).getAccountInfo(codeAccountPda);
+  const connection = new Connection(rpc, "confirmed");
+  const codeAccountInfo = await connection.getAccountInfo(codeAccountPda);
   if (!codeAccountInfo) {
     return {
       success: false,
@@ -101,7 +108,7 @@ export const getReferralDataByCodeHash = async (network: keyof NetworkConfigs, p
   const codeAccountData = await program.account.codeAccountData.fetch(codeAccountPda);
   const referralAccountPda = codeAccountData.referralAccount;
 
-  const referralAccountInfo = await connection(network).getAccountInfo(referralAccountPda);
+  const referralAccountInfo = await connection.getAccountInfo(referralAccountPda);
   if (!referralAccountInfo) {
     return {
       success: false,
@@ -156,11 +163,8 @@ export function getFeeValue(
   const SCALE = BN_MILLION; // new BN(1000000);
 
   // Calculate balance ratio with scale
-  console.log("referrerAtaBalance:", referrerAtaBalance.toString());
-  console.log("totalSupply:", totalSupply.toString());
   const balanceRatioScaled = totalSupply.gt(new BN(0)) ? referrerAtaBalance.mul(SCALE).div(totalSupply) : new BN(0);
   const balanceRatio = balanceRatioScaled.toNumber() / SCALE.toNumber();
-  console.log("balance_ratio:", balanceRatio);
 
   // Determine discount rate and convert to scaled BN
   let discountRateScaled: BN;
@@ -177,8 +181,7 @@ export function getFeeValue(
   } else {
     discountRateScaled = new BN(0);
   }
-  const discountRate = discountRateScaled.toNumber() / SCALE.toNumber();
-  console.log("discount_rate:", discountRate);
+  // const discountRate = discountRateScaled.toNumber() / SCALE.toNumber();
 
   // Convert difficultyCoefficient to scaled BN
   const difficultyScaled = new BN(Math.floor(difficultyCoefficient * SCALE.toNumber()));
@@ -189,10 +192,10 @@ export function getFeeValue(
   const scaledMultiplier = one.add(discountByDifficulty).sub(discountRateScaled);
   const fee = feeRate.mul(scaledMultiplier).div(SCALE);
 
-  console.log(
-    "fee:",
-    `${1} + ${discountRate} / ${difficultyCoefficient} - ${discountRate} = ${fee.toString()}`
-  );
+  // console.log(
+  //   "fee:",
+  //   `${1} + ${discountRate} / ${difficultyCoefficient} - ${discountRate} = ${fee.toString()}`
+  // );
 
   // Calculate code sharer reward: 0.2 * feeRate * discountRate * (1 - 1/difficultyCoefficient)
   const rewardBase = new BN(200000); // 0.2 * SCALE
@@ -410,7 +413,6 @@ export const mintBy = async (
 
   const destinationAta = await getAssociatedTokenAddress(new PublicKey(mintAccount), account.publicKey, false, TOKEN_PROGRAM_ID);
   const destinationAtaInfo = await connection.getAccountInfo(destinationAta);
-
   const destinationWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, account.publicKey, false, TOKEN_PROGRAM_ID);
   const destinationWsolInfo = await connection.getAccountInfo(destinationWsolAta);
 
@@ -435,10 +437,7 @@ export const mintBy = async (
     TOKEN_PROGRAM_ID
   );
 
-  const [refundAccount] = PublicKey.findProgramAddressSync(
-    [Buffer.from(REFUND_SEEDS), mintAccount.toBuffer(), account.publicKey.toBuffer()],
-    program.programId,
-  );
+  const refundAccount = refundAccountPda(program, mintAccount, account.publicKey);
 
   const referrerAccountInfo = await connection.getAccountInfo(referrerAta);
   if (referrerAccountInfo === null) {
@@ -455,7 +454,6 @@ export const mintBy = async (
       message: "Code hash not match",
     }
   }
-
   const protocolWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount), false, TOKEN_PROGRAM_ID);
 
   const wsolVaultAta = await getAssociatedTokenAddress(NATIVE_MINT, configAccount, true, TOKEN_PROGRAM_ID);

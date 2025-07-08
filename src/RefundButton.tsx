@@ -2,7 +2,8 @@ import React, { JSX, useEffect } from 'react';
 import { RefundButtonProps, SuccessResponseData } from './types/common';
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from './types/fair_mint_token';
-import idl from "./idl/fair_mint_token.json";
+import idl_devnet from "./idl/fair_mint_token_devnet.json";
+import idl_mainnet from "./idl/fair_mint_token_mainnet.json";
 import { defaultInformationStyle, defaultRefundButtonStyle } from './types/styles';
 import { NETWORK_CONFIGS } from './config';
 import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -41,7 +42,6 @@ const RefundButton = ({
         TOKEN_PROGRAM_ID
       );
       
-      // console.log('User Token Account:', userTokenAccount.toBase58());
       const tokenAccountInfo = await connection.getAccountInfo(userTokenAccount);
       if (tokenAccountInfo) {
         const tokenBalance = await connection.getTokenAccountBalance(userTokenAccount);
@@ -67,18 +67,18 @@ const RefundButton = ({
       return;
     }
 
-    const program = new anchor.Program<FairMintToken>(idl, provider);
+    const program = network === "devnet" ? new anchor.Program<FairMintToken>(idl_devnet, provider) : new anchor.Program<FairMintToken>(idl_mainnet, provider);
 
     if (!provider.wallet) {
       onError?.('Wallet is not connected');
       return;
     }
+
     const _mintAccount = mintAccount(program, tokenInfo.tokenName, tokenInfo.tokenSymbol);
     if (_mintAccount.toBase58() !== mintAddress) {
       onError?.('Mint address is not correct');
       return;
     }
-
     const _systemConfigAccount = systemConfigAccount(program, new PublicKey(NETWORK_CONFIGS[network].systemDeployer));
     const _protocolFeeAccount = new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount);
     const _mintAddress = new PublicKey(mintAddress);

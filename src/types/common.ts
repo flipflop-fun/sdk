@@ -98,6 +98,7 @@ export type TokenMetadataExtensions = {
 
 export type MintButtonProps = {
   network: keyof NetworkConfigs;
+  rpc: string;
   mintAddress: string;
   urcCode: string;
   wallet: AnchorWallet;
@@ -136,7 +137,8 @@ export type RefundButtonProps = {
 };
 
 export interface NetworkConfig {
-  solanaRpc: string;
+  programId: string,
+  // solanaRpc: string;
   frontendUrl: string;
   systemDeployer: PublicKey;
   protocolFeeAccount: PublicKey;
