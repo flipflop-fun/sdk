@@ -15,7 +15,7 @@ export const MAX_URC_USAGE_COUNT = 50;
 
 export const NETWORK_CONFIGS: NetworkConfigs = {
   devnet: {
-    frontendUrl: "https://test.flipflop.fun",
+    frontendUrl: "https://test.flipflop.plus",
     // programId: "8GM2N7qQjzMyhqewu8jpDgzUh2BJbtBxSY1WzSFeFm6U",
     systemDeployer: new PublicKey('CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79'),
     protocolFeeAccount: new PublicKey("CXzddeiDgbTTxNnd1apeUGE7E1UAdvBoysf7c271AA79"),
@@ -26,7 +26,7 @@ export const NETWORK_CONFIGS: NetworkConfigs = {
     addressLookupTableAddress: new PublicKey("EebRqpLtUgjX17pJJNNbd6ngtYa34VGa51oYsibwJRXy"),
   } as NetworkConfig,
   mainnet: {
-    frontendUrl: "https://app.flipflop.fun",
+    frontendUrl: "https://app.flipflop.plus",
     // programId: "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
     systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'),
     protocolFeeAccount: new PublicKey("7x75mM5g8wx87bhjxhWKJPSb5mUboPGBWhRWA1AUBXmb"),
