@@ -520,39 +520,7 @@
         },
         {
           "name": "system_config_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "protocol_fee_account",
@@ -713,39 +681,7 @@
           }
         },
         {
-          "name": "system_config_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "name": "system_config_account"
         },
         {
           "name": "mint_token_vault",
@@ -1081,39 +1017,7 @@
           }
         },
         {
-          "name": "system_config_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "name": "system_config_account"
         },
         {
           "name": "token_vault",
@@ -2356,39 +2260,7 @@
           "writable": true
         },
         {
-          "name": "system_config_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "name": "system_config_account"
         },
         {
           "name": "payer",
@@ -2645,39 +2517,7 @@
           "name": "config_account"
         },
         {
-          "name": "system_config_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "name": "system_config_account"
         },
         {
           "name": "code_account",
@@ -2759,39 +2599,7 @@
         },
         {
           "name": "system_config_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "system_program",
@@ -2799,6 +2607,10 @@
         }
       ],
       "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
         {
           "name": "referral_usage_max_count",
           "type": "u32"
@@ -2965,39 +2777,7 @@
         },
         {
           "name": "system_config_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "SystemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "protocol_fee_account",
