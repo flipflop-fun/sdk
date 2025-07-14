@@ -28,8 +28,8 @@ export const NETWORK_CONFIGS: NetworkConfigs = {
   mainnet: {
     frontendUrl: "https://app.flipflop.plus",
     // programId: "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
-    systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'),
-    protocolFeeAccount: new PublicKey("7x75mM5g8wx87bhjxhWKJPSb5mUboPGBWhRWA1AUBXmb"),
+    systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'), // must be DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD, this is the original deployer
+    protocolFeeAccount: new PublicKey("AJW5egb1aDk8Jv8WKURQhnM2z5RAnQrRBFwEz1TBa6Nz"),
     tokenMetadataProgramId: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
     cpSwapProgram: new PublicKey("CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"),
     cpSwapConfigAddress: new PublicKey("D4FPEruKEHrG5TenZ2mpDGEfu1iUvTiqBxvpU8HLBvC2"),
