@@ -454,7 +454,7 @@ export const mintBy = async (
       message: "Code hash not match",
     }
   }
-  const protocolWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount), false, TOKEN_PROGRAM_ID);
+  const protocolWsolAta = getAssociatedTokenAddressSync(NATIVE_MINT, protocolFeeAccount, NETWORK_CONFIGS[network].allowOwnerOffCurveForProtocolFeeAccount, TOKEN_PROGRAM_ID);
 
   const wsolVaultAta = await getAssociatedTokenAddress(NATIVE_MINT, configAccount, true, TOKEN_PROGRAM_ID);
 

@@ -102,7 +102,8 @@ const MintButton = ({
       return;
     }
     const _systemConfigAccount = systemConfigAccount(program, new PublicKey(NETWORK_CONFIGS[network].systemDeployer));
-    const _protocolFeeAccount = new PublicKey(NETWORK_CONFIGS[network].protocolFeeAccount);
+    const _systemConfigData = await program.account.systemConfigData.fetch(_systemConfigAccount);
+    const _protocolFeeAccount = _systemConfigData.protocolFeeAccount;
     const _mintAddress = new PublicKey(mintAddress);
     const _configAccount = configAccount(program, _mintAddress);
     const _codeHash = getReferrerCodeHash(program, urcCode);
