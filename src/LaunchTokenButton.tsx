@@ -4,7 +4,7 @@ import { AnchorWallet } from '@solana/wallet-adapter-react';
 import { FairMintToken } from './types/fair_mint_token';
 import idl_devnet from "./idl/fair_mint_token_devnet.json";
 import idl_mainnet from "./idl/fair_mint_token_mainnet.json";
-import { defaultInformationStyle, defaultMintButtonStyle } from './types/styles';
+import { defaultMintButtonStyle } from './types/styles';
 import { LaunchTokenButtonProps, InitializeSuccessData } from './types/common';
 import { cleanMetadata, initializeToken, uploadToStorage } from './utils/web3';
 import { DEFAULT_PARAMS, MAX_AVATAR_SIZE } from './config';
@@ -19,7 +19,6 @@ const LaunchTokenButton = ({
   tokenType,
   buttonTitle,
   buttonStyle,
-  informationStyle,
   onStart,
   onError,
   onSuccess,
@@ -136,9 +135,6 @@ const LaunchTokenButton = ({
 
   return (
     <div>
-      <div style={{ ...defaultInformationStyle, ...informationStyle }}>
-        <div style={{ marginRight: '2px' }}>Launch a new token</div>
-      </div>
       <div style={{ ...defaultMintButtonStyle, ...buttonStyle }} onClick={onLaunch}>
         <div>{buttonTitle ? buttonTitle : 'Launch'}</div>
       </div>
