@@ -3,7 +3,7 @@ import { CODE_ACCOUNT_SEEDS, CONFIG_DATA_SEED, METADATA_SEED, MINT_SEED, NETWORK
 import * as anchor from '@coral-xyz/anchor';
 import { FairMintToken } from '../types/fair_mint_token';
 import { Buffer } from 'buffer';
-import { NetworkConfigs, RemainingAccount, ResponseData, SuccessResponseData } from "../types/common";
+import { NetworkConfig, NetworkConfigs, RemainingAccount, ResponseData, SuccessResponseData } from "../types/common";
 import { BN } from "@coral-xyz/anchor";
 import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { getAuthAddress, getOrcleAccountAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress } from "./pda";
@@ -11,51 +11,60 @@ import { ASSOCIATED_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { RENT_PROGRAM_ID } from '@raydium-io/raydium-sdk-v2';
 import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { InitializeTokenConfig, TokenMetadata } from "../types/styles";
+import axios from 'axios';
 
 export const BN_MILLION = new BN(1000000);
 export const BN_LAMPORTS_PER_SOL = new BN(1000000000);
+
+// Upload API URL builder
+export const getUploadApiUrl = (network: keyof NetworkConfigs): string => `${NETWORK_CONFIGS[network].apiBaseUrl}/api/irys/upload`;
+
+export type UploadContentType = 'avatar' | 'metadata';
+
+/**
+ * Upload content to storage service (Irys) via Flipflop API.
+ * - For avatar upload, pass a File/Blob and set contentType to 'avatar'.
+ * - For metadata upload, pass a JSON-able object or string and set contentType to 'metadata'.
+ * Returns a ResponseData object. The API is expected to follow ResponseData shape.
+ */
+export async function uploadToStorage(
+  network: keyof NetworkConfigs,
+  payload: File,
+  contentType: UploadContentType,
+): Promise<ResponseData> {
+  const url = getUploadApiUrl(network);
+
+  const form = new FormData();
+  // form.append('contentType', contentType);
+  form.append('action', contentType as string);
+  form.append('file', payload);
+
+  // 在 uploadToStorage 函数中，将第44-51行改为：
+  try {
+    const res = await axios.post(url, form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    const data = res.data;
+
+    if (data.status === 'success') {
+      return {
+        success: true,
+        data: `${NETWORK_CONFIGS[network].irysGatewayUrl}/${data.fileInfo.itemId}`,
+      };
+    }
+    throw new Error('Upload failed: ' + JSON.stringify(data));
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Upload failed' };
+  }
+}
 
 export const connection = (rpc: string) => new Connection(
   rpc,
   'confirmed',
 );
-
-// export const updateProgramProvider = (keypair: anchor.web3.Keypair, rpc: string) => {
-//   const _connection = connection(rpc) as Connection;
-//   const newProvider = new anchor.AnchorProvider(
-//     _connection,
-//     {
-//       publicKey: keypair.publicKey,
-//       signTransaction: async (tx) => {
-//         if ('partialSign' in tx) {
-//           tx.partialSign(keypair);
-//         } else {
-//           tx.sign([keypair]);
-//         }
-//         return tx;
-//       },
-//       signAllTransactions: async (txs) => {
-//         txs.forEach(tx => {
-//           if ('partialSign' in tx) {
-//             tx.partialSign(keypair);
-//           } else {
-//             tx.sign([keypair]);
-//           }
-//         });
-//         return txs;
-//       },
-//     },
-//     { commitment: 'confirmed' }
-//   );
-  
-//   return {
-//     provider: newProvider,
-//     program: new anchor.Program<FairMintToken>(idl, newProvider),
-//   }
-// };
-
-// export const program = new anchor.Program<FairMintToken>(idl, provider);
-
 
 export const mintAccount = (program: anchor.Program<FairMintToken>, tokenName: string, tokenSymbol: string) => PublicKey.findProgramAddressSync(
   [Buffer.from(MINT_SEED), Buffer.from(tokenName), Buffer.from(tokenSymbol.toLowerCase())],
@@ -487,7 +496,7 @@ export const mintBy = async (
     destinationWsolAta: destinationWsolAta,
     refundAccount: refundAccount,
     user: account.publicKey,
-    configAccount: configAccount,
+    configAccount,
     systemConfigAccount: systemConfigAccount,
     mintTokenVault: mintTokenVaultAta,
     tokenVault: tokenVaultAta,
@@ -802,3 +811,97 @@ export const parseConfigData = async (program: anchor.Program<FairMintToken> , c
     })
   })
 }
+
+export const initializeToken = async (
+  network: keyof NetworkConfigs,
+  program: anchor.Program<FairMintToken>,
+  account: AnchorWallet,
+  connection: Connection,
+  metadata: TokenMetadata,
+  initConfigData: InitializeTokenConfig,
+): Promise<ResponseData> => {
+  try {
+    // Basic balance check
+    // ######
+    const balance = await getSolanaBalance(account.publicKey, connection);
+    if (balance === 0) {
+      return { success: false, message: 'Balance not enough' };
+    }
+
+    // Derive PDAs and ATAs
+    const mint = mintAccount(program, metadata.name, metadata.symbol);
+    const mintAccountInfo = await connection.getAccountInfo(mint);
+    if (mintAccountInfo) {
+      return {
+        success: false,
+        message: 'Token already exists',
+      }
+    }
+
+    const cfgAccount = configAccount(program, mint);
+    const metadataAccount = metadataAccountPda(network, mint);
+
+    const systemCfgAccount = systemConfigAccount(program, new PublicKey((NETWORK_CONFIGS[network] as NetworkConfig).systemDeployer));
+    const systemCfgData = await program.account.systemConfigData.fetch(systemCfgAccount);
+    const protocolFeeAccount = systemCfgData.protocolFeeAccount as PublicKey;
+
+    const mintTokenVaultAta = await getAssociatedTokenAddress(mint, mint, true, TOKEN_PROGRAM_ID);
+    const tokenVaultAta = await getAssociatedTokenAddress(mint, cfgAccount, true, TOKEN_PROGRAM_ID);
+    const wsolVaultAta = await getAssociatedTokenAddress(NATIVE_MINT, cfgAccount, true, TOKEN_PROGRAM_ID);
+
+    // Build instructions
+    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({ units: 500000 });
+
+    const startTimestamp = Math.floor(Date.now() / 1000)
+    initConfigData = {
+      ...initConfigData,
+      startTimestamp: new BN(startTimestamp),
+    }
+
+    const contextInitializeTokenAccounts = {
+      metadata: metadataAccount,
+      payer: account.publicKey,
+      mint,
+      configAccount: cfgAccount,
+      mintTokenVault: mintTokenVaultAta,
+      tokenVault: tokenVaultAta,
+      wsolMint: NATIVE_MINT,
+      wsolVault: wsolVaultAta,
+      systemConfigAccount: systemCfgAccount,
+      protocolFeeAccount: protocolFeeAccount,
+      launchRuleAccount: NETWORK_CONFIGS[network].launchRuleAccount,
+      tokenMetadataProgram: NETWORK_CONFIGS[network].tokenMetadataProgramId,
+    }
+    // console.log('initConfigData', Object.fromEntries(
+    //   Object.entries(initConfigData).map(([key, value]) => [key, value.toString()])
+    // ));
+
+    // console.log('contextInitializeTokenAccounts', Object.fromEntries(
+    //   Object.entries(contextInitializeTokenAccounts).map(([key, value]) => [key, value.toString()])
+    // ));
+
+    const ix = await program.methods
+      .initializeToken(metadata, initConfigData as any)
+      .accounts(contextInitializeTokenAccounts)
+      .instruction();
+
+    const tx = new Transaction().add(ix0).add(ix);
+
+    const result = await processTransaction(
+      tx,
+      connection,
+      account,
+      'Token launched successfully',
+      {
+        mintAddress: mint.toBase58(),
+        configAccount: cfgAccount.toBase58(),
+        metadataAccount: metadataAccount.toBase58(),
+        tokenUrl: `${NETWORK_CONFIGS[network].frontendUrl}/token/${mint.toBase58()}`,
+      }
+    );
+
+    return result;
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+};

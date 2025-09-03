@@ -1,3 +1,5 @@
+import BN from "bn.js";
+
 export const defaultMintButtonStyle = {
   padding: '10px',
   border: '1px solid #ccc',
@@ -25,4 +27,23 @@ export const defaultGenerateURCStyle = {
 export const defaultFlipflopLogoStyle = {
   display: 'flex',
   justifyContent: 'center',
+}
+
+export type TokenMetadata = {
+  name: string;
+  symbol: string;
+  uri: string;
+  decimals?: number;
+}
+
+export type InitializeTokenConfig = {
+  targetEras: BN;
+  epochesPerEra: BN;
+  targetSecondsPerEpoch: BN;
+  reduceRatio: BN;
+  initialMintSize: BN;
+  initialTargetMintSizePerEpoch: BN;
+  feeRate: BN;
+  liquidityTokensRatio: BN;
+  startTimestamp?: BN;
 }

@@ -136,8 +136,34 @@ export type RefundButtonProps = {
   onSuccess?: (data: SuccessResponseData) => void;
 };
 
+export type InitializeSuccessData = {
+  tx: string;
+  mintAddress: string;
+  configAccount: string;
+  metadataAccount: string;
+  tokenUrl: string;
+}
+
+export type LaunchTokenButtonProps = {
+  network: keyof NetworkConfigs;
+  wallet: AnchorWallet;
+  connection: Connection;
+  name: string;
+  symbol: string;
+  file: File;
+  tokenType: 'meme' | 'standard';
+  buttonTitle?: string;
+  buttonStyle?: Object;
+  informationStyle?: Object;
+  onStart?: () => void;
+  onError?: (error: string) => void;
+  onSuccess?: (data: InitializeSuccessData) => void;
+};
+
 export interface NetworkConfig {
   programId: string,
+  apiBaseUrl: string;
+  irysGatewayUrl: string;
   // solanaRpc: string;
   frontendUrl: string;
   systemDeployer: PublicKey;

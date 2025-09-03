@@ -1,5 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { NetworkConfig, NetworkConfigs } from "./types/common";
+import BN from "bn.js";
+import { InitializeTokenConfig } from "./types/styles";
 
 // PDA Seeds
 export const METADATA_SEED = "metadata";
@@ -12,10 +14,13 @@ export const REFERRAL_CODE_SEED = "referral_code";
 export const CODE_ACCOUNT_SEEDS = "code_account";
 
 export const MAX_URC_USAGE_COUNT = 50;
+export const MAX_AVATAR_SIZE = 250 * 1024;
 
 export const NETWORK_CONFIGS: NetworkConfigs = {
   devnet: {
     frontendUrl: "https://test.flipflop.plus",
+    apiBaseUrl: 'https://api-dev.flipflop.plus',
+    irysGatewayUrl: "https://gateway.irys.xyz",
     // programId: "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
     systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'),
     allowOwnerOffCurveForProtocolFeeAccount: false, // if protocol fee account is not pda account, set false
@@ -28,6 +33,8 @@ export const NETWORK_CONFIGS: NetworkConfigs = {
   } as NetworkConfig,
   mainnet: {
     frontendUrl: "https://app.flipflop.plus",
+    apiBaseUrl: 'https://api.flipflop.plus',
+    irysGatewayUrl: "https://gateway.irys.xyz",
     // programId: "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
     systemDeployer: new PublicKey('DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD'), // must be DJ3jvpv6k7uhq8h9oVHZck6oY4dQqY1GHaLvCLjSqxaD, this is the original deployer
     allowOwnerOffCurveForProtocolFeeAccount: true, // if protocol fee account is pda account, set true
@@ -40,3 +47,27 @@ export const NETWORK_CONFIGS: NetworkConfigs = {
   } as NetworkConfig,
 };
 
+export const DEFAULT_PARAMS = {
+  standard: {
+    // must be same as program default params
+    targetEras: new BN('1'),
+    epochesPerEra: new BN('200'),
+    targetSecondsPerEpoch: new BN('2000'),
+    reduceRatio: new BN('50'),
+    initialMintSize: new BN('20000000000000'),
+    initialTargetMintSizePerEpoch: new BN('200000000000000'),
+    feeRate: new BN('250000000'),
+    liquidityTokensRatio: new BN('20'),
+  },
+  meme: {
+    // config for mainnet, 100 - 557 SOL
+    targetEras: new BN('1'),
+    epochesPerEra: new BN('200'),
+    targetSecondsPerEpoch: new BN('2000'),
+    reduceRatio: new BN('75'),
+    initialMintSize: new BN('100000000000000'),
+    initialTargetMintSizePerEpoch: new BN('1000000000000000'),
+    feeRate: new BN('50000000'),
+    liquidityTokensRatio: new BN('20'),
+  },
+} as Record<string, InitializeTokenConfig>;
