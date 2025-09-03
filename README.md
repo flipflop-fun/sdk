@@ -76,6 +76,9 @@ function App() {
 ### MintButton Component
 The primary component for integrating Proof of Mint functionality.
 
+### LaunchTokenButton Component
+A comprehensive component for launching new tokens with integrated file upload and metadata management.
+
 #### Props
 | Property           | Type                 | Required | Default     | Description                     |
 |--------------------|----------------------|----------|-------------|---------------------------------|
@@ -99,6 +102,77 @@ The primary component for integrating Proof of Mint functionality.
 | onRefundStart        | () => void           | ❌        | -           | Callback fired when refunding begins |
 | onRefundError        | (error: string) => void | ❌     | -           | Error handling callback for refunding     |
 | onRefundSuccess      | (data: SuccessResponseData) => void | ❌ | -       | Success callback with transaction data |
+
+#### LaunchTokenButton Props
+| Property           | Type                 | Required | Default     | Description                     |
+|--------------------|----------------------|----------|-------------|---------------------------------|
+| network            | "devnet" \| "mainnet" | ✅       | -           | The Solana network              |
+| wallet             | AnchorWallet         | ✅        | -           | Connected Solana wallet instance |
+| connection         | Connection           | ✅        | -           | Solana RPC connection           |
+| metadata           | TokenMetadataIPFS    | ✅        | -           | Token metadata (name, symbol, description, etc.) |
+| imageFileForUpload | File \| Blob         | ❌        | -           | Image file to upload (will override metadata.image) |
+| metadataForUpload  | TokenMetadataIPFS    | ❌        | -           | Metadata to upload (will override metadata.uri) |
+| buttonTitle        | string               | ❌        | "Launch Token" | Custom button text         |
+| buttonStyle        | CSSProperties        | ❌        | See defaults | Custom button styling     |
+| onLaunchStart      | () => void           | ❌        | -           | Callback fired when launch begins |
+| onLaunchError      | (error: string) => void | ❌     | -           | Error handling callback  |
+| onLaunchSuccess    | (data: LaunchSuccessData) => void | ❌ | -       | Success callback with token data |
+
+#### LaunchTokenButton Usage
+```typescript
+import { LaunchTokenButton } from '@flipflop-sdk/tools';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+
+function TokenLauncher() {
+  const { connection } = useConnection();
+  const wallet = useWallet();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const tokenMetadata = {
+    name: "My Token",
+    symbol: "MTK",
+    description: "A sample token",
+    image: "https://example.com/placeholder.jpg", // Will be overridden if imageFileForUpload is provided
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+      />
+      
+      <LaunchTokenButton
+        network="devnet"
+        wallet={wallet}
+        connection={connection}
+        metadata={tokenMetadata}
+        imageFileForUpload={imageFile}
+        buttonTitle="Launch My Token"
+        buttonStyle={{
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          padding: '12px 24px',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '16px',
+          cursor: 'pointer',
+        }}
+        onLaunchStart={() => {
+          console.log('Token launch started');
+        }}
+        onLaunchError={(error) => {
+          console.error('Launch failed:', error);
+        }}
+        onLaunchSuccess={(data) => {
+          console.log('Token launched successfully:', data);
+        }}
+      />
+    </div>
+  );
+}
+```
 
 #### Types
 ```
@@ -131,6 +205,46 @@ interface MintButtonProps = {
   onRefundStart?: () => void;
   onRefundError?: (error: string) => void;
   onRefundSuccess?: (data: SuccessResponseData) => void;
+};
+
+interface TokenMetadataIPFS {
+  name: string;
+  symbol: string;
+  description?: string;
+  image?: string;
+  external_url?: string;
+  attributes?: Array<{
+    trait_type: string;
+    value: string | number;
+  }>;
+  properties?: {
+    files?: Array<{
+      uri: string;
+      type: string;
+    }>;
+    category?: string;
+  };
+}
+
+interface LaunchSuccessData {
+  mintAddress: string;
+  signature: string;
+  metadataUri?: string;
+  imageUri?: string;
+}
+
+interface LaunchTokenButtonProps {
+  network: keyof NetworkConfigs;
+  wallet: AnchorWallet;
+  connection: Connection;
+  metadata: TokenMetadataIPFS;
+  imageFileForUpload?: File | Blob;
+  metadataForUpload?: TokenMetadataIPFS;
+  buttonTitle?: string;
+  buttonStyle?: CSSProperties;
+  onLaunchStart?: () => void;
+  onLaunchError?: (error: string) => void;
+  onLaunchSuccess?: (data: LaunchSuccessData) => void;
 };
 ```
 
@@ -166,6 +280,18 @@ export const defaultGenerateURCStyle = {
 export const defaultFlipflopLogoStyle = {
   display: 'flex',
   justifyContent: 'center',
+}
+
+export const defaultLaunchTokenButtonStyle = {
+  padding: '12px 24px',
+  backgroundColor: '#007bff',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
 }
 ```
 
@@ -242,6 +368,91 @@ export const defaultFlipflopLogoStyle = {
 ```
 
 ## 🔧 Advanced Usage
+
+### LaunchTokenButton Advanced Usage
+
+#### File Validation
+```typescript
+const validateImageFile = (file: File): string | null => {
+  // Check file size (max 250KB)
+  if (file.size > 250 * 1024) {
+    return 'Image file must be under 250KB';
+  }
+  
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    return 'Please select a valid image file';
+  }
+  
+  // Check if image is square (optional)
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.width !== img.height) {
+        resolve('Image must be square (1:1 aspect ratio)');
+      } else {
+        resolve(null);
+      }
+    };
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+function TokenLauncherWithValidation() {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isLaunching, setIsLaunching] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const error = await validateImageFile(file);
+    if (error) {
+      setValidationError(error);
+      setImageFile(null);
+    } else {
+      setValidationError(null);
+      setImageFile(file);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        disabled={isLaunching}
+      />
+      {validationError && (
+        <p style={{ color: 'red' }}>{validationError}</p>
+      )}
+      
+      <LaunchTokenButton
+        // ... other props
+        imageFileForUpload={imageFile}
+        buttonTitle={isLaunching ? 'Launching...' : 'Launch Token'}
+        buttonStyle={{
+          ...defaultLaunchTokenButtonStyle,
+          opacity: isLaunching || validationError ? 0.6 : 1,
+          cursor: isLaunching || validationError ? 'not-allowed' : 'pointer',
+        }}
+        onLaunchStart={() => setIsLaunching(true)}
+        onLaunchSuccess={(data) => {
+          setIsLaunching(false);
+          console.log('Token launched:', data);
+        }}
+        onLaunchError={(error) => {
+          setIsLaunching(false);
+          console.error('Launch failed:', error);
+        }}
+      />
+    </div>
+  );
+}
+```
+
 ### Error Handling
 ```
 const handleMintError = (error: string) => {
