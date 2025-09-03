@@ -148,6 +148,7 @@ export interface NetworkConfig {
   cpSwapConfigAddress: PublicKey;
   createPoolFeeReceive: PublicKey;
   addressLookupTableAddress: PublicKey;
+  launchRuleAccount: PublicKey;
 }
 
 export interface NetworkConfigs {

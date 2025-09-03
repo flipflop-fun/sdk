@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/fair_mint_token.json`.
  */
 export type FairMintToken = {
-  "address": "8GM2N7qQjzMyhqewu8jpDgzUh2BJbtBxSY1WzSFeFm6U",
+  "address": "FLipzZfErPUtDQPj9YrC6wp4nRRiVxRkFm3jdFmiPHJV",
   "metadata": {
     "name": "fairMintToken",
     "version": "0.2.0",
@@ -335,6 +335,83 @@ export type FairMintToken = {
       ]
     },
     {
+      "name": "initializeLaunchRule",
+      "docs": [
+        "Initialize launch rule"
+      ],
+      "discriminator": [
+        61,
+        250,
+        188,
+        110,
+        91,
+        75,
+        249,
+        62
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "launchRuleData",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  117,
+                  110,
+                  99,
+                  104,
+                  95,
+                  114,
+                  117,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "startSlot",
+          "type": "u64"
+        },
+        {
+          "name": "slotsPerPeriod",
+          "type": "u64"
+        },
+        {
+          "name": "baseLaunchLimit",
+          "type": "u64"
+        },
+        {
+          "name": "increasementLaunchLimit",
+          "type": "u64"
+        },
+        {
+          "name": "maxPeriod",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "initializeSystem",
       "docs": [
         "Initialize system"
@@ -510,6 +587,9 @@ export type FairMintToken = {
           }
         },
         {
+          "name": "launchRuleAccount"
+        },
+        {
           "name": "mintTokenVault",
           "writable": true
         },
@@ -526,39 +606,7 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "protocolFeeAccount",
@@ -719,39 +767,7 @@ export type FairMintToken = {
           }
         },
         {
-          "name": "systemConfigAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "name": "systemConfigAccount"
         },
         {
           "name": "mintTokenVault",
@@ -849,7 +865,7 @@ export type FairMintToken = {
         },
         {
           "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
+          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
         },
         {
           "name": "token0Mint"
@@ -1002,205 +1018,9 @@ export type FairMintToken = {
       ]
     },
     {
-      "name": "proxyCreatePool",
-      "docs": [
-        "Initiazlize a swap pool"
-      ],
-      "discriminator": [
-        250,
-        151,
-        238,
-        168,
-        5,
-        240,
-        236,
-        243
-      ],
-      "accounts": [
-        {
-          "name": "creator",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "creatorTokenVault",
-          "writable": true
-        },
-        {
-          "name": "creatorWsolVault",
-          "writable": true
-        },
-        {
-          "name": "mint",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  102,
-                  97,
-                  105,
-                  114,
-                  95,
-                  109,
-                  105,
-                  110,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "tokenName"
-              },
-              {
-                "kind": "arg",
-                "path": "tokenSymbol"
-              }
-            ]
-          }
-        },
-        {
-          "name": "configAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  100,
-                  97,
-                  116,
-                  97
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "systemConfigAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
-        },
-        {
-          "name": "tokenVault",
-          "writable": true
-        },
-        {
-          "name": "wsolVault",
-          "writable": true
-        },
-        {
-          "name": "wsolMint"
-        },
-        {
-          "name": "poolState",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  111,
-                  108
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "ammConfig"
-              },
-              {
-                "kind": "account",
-                "path": "token0Mint"
-              },
-              {
-                "kind": "account",
-                "path": "token1Mint"
-              }
-            ],
-            "program": {
-              "kind": "account",
-              "path": "cpSwapProgram"
-            }
-          }
-        },
-        {
-          "name": "ammConfig"
-        },
-        {
-          "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
-        },
-        {
-          "name": "token0Mint"
-        },
-        {
-          "name": "token1Mint"
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "tokenName",
-          "type": "string"
-        },
-        {
-          "name": "tokenSymbol",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "proxyDeposit",
       "docs": [
+        "Initiazlize a swap pool (Deprated)",
         "deposit instruction"
       ],
       "discriminator": [
@@ -1216,7 +1036,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
+          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
         },
         {
           "name": "owner",
@@ -1330,36 +1150,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                49,
-                26,
-                136,
-                152,
-                134,
-                77,
+                90,
+                139,
+                79,
+                41,
+                89,
+                82,
+                132,
+                37,
+                80,
+                170,
+                147,
+                253,
+                91,
+                149,
+                181,
+                172,
+                230,
+                168,
+                235,
+                146,
+                12,
+                147,
+                148,
+                46,
+                67,
+                105,
+                12,
                 32,
-                99,
-                200,
-                252,
-                203,
-                83,
-                110,
-                30,
-                138,
-                48,
-                77,
-                141,
-                83,
-                152,
-                76,
-                10,
-                78,
-                179,
-                193,
-                68,
-                7,
-                214,
-                116,
-                231
+                236,
+                115
               ]
             }
           }
@@ -1478,7 +1298,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
+          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
         },
         {
           "name": "payer",
@@ -1592,36 +1412,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                49,
-                26,
-                136,
-                152,
-                134,
-                77,
+                90,
+                139,
+                79,
+                41,
+                89,
+                82,
+                132,
+                37,
+                80,
+                170,
+                147,
+                253,
+                91,
+                149,
+                181,
+                172,
+                230,
+                168,
+                235,
+                146,
+                12,
+                147,
+                148,
+                46,
+                67,
+                105,
+                12,
                 32,
-                99,
-                200,
-                252,
-                203,
-                83,
-                110,
-                30,
-                138,
-                48,
-                77,
-                141,
-                83,
-                152,
-                76,
-                10,
-                78,
-                179,
-                193,
-                68,
-                7,
-                214,
-                116,
-                231
+                236,
+                115
               ]
             }
           }
@@ -1736,7 +1556,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
+          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
         },
         {
           "name": "payer",
@@ -1850,36 +1670,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                49,
-                26,
-                136,
-                152,
-                134,
-                77,
+                90,
+                139,
+                79,
+                41,
+                89,
+                82,
+                132,
+                37,
+                80,
+                170,
+                147,
+                253,
+                91,
+                149,
+                181,
+                172,
+                230,
+                168,
+                235,
+                146,
+                12,
+                147,
+                148,
+                46,
+                67,
+                105,
+                12,
                 32,
-                99,
-                200,
-                252,
-                203,
-                83,
-                110,
-                30,
-                138,
-                48,
-                77,
-                141,
-                83,
-                152,
-                76,
-                10,
-                78,
-                179,
-                193,
-                68,
-                7,
-                214,
-                116,
-                231
+                236,
+                115
               ]
             }
           }
@@ -1994,7 +1814,7 @@ export type FairMintToken = {
       "accounts": [
         {
           "name": "cpSwapProgram",
-          "address": "CPMDWBwJDtYax9qW7AyRuVC19Cc4L4Vcy4n2BHAbHkCW"
+          "address": "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"
         },
         {
           "name": "owner",
@@ -2108,36 +1928,36 @@ export type FairMintToken = {
               "value": [
                 169,
                 42,
-                49,
-                26,
-                136,
-                152,
-                134,
-                77,
+                90,
+                139,
+                79,
+                41,
+                89,
+                82,
+                132,
+                37,
+                80,
+                170,
+                147,
+                253,
+                91,
+                149,
+                181,
+                172,
+                230,
+                168,
+                235,
+                146,
+                12,
+                147,
+                148,
+                46,
+                67,
+                105,
+                12,
                 32,
-                99,
-                200,
-                252,
-                203,
-                83,
-                110,
-                30,
-                138,
-                48,
-                77,
-                141,
-                83,
-                152,
-                76,
-                10,
-                78,
-                179,
-                193,
-                68,
-                7,
-                214,
-                116,
-                231
+                236,
+                115
               ]
             }
           }
@@ -2362,39 +2182,7 @@ export type FairMintToken = {
           "writable": true
         },
         {
-          "name": "systemConfigAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "name": "systemConfigAccount"
         },
         {
           "name": "payer",
@@ -2651,39 +2439,7 @@ export type FairMintToken = {
           "name": "configAccount"
         },
         {
-          "name": "systemConfigAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "name": "systemConfigAccount"
         },
         {
           "name": "codeAccount",
@@ -2765,39 +2521,7 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "systemProgram",
@@ -2805,6 +2529,10 @@ export type FairMintToken = {
         }
       ],
       "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
         {
           "name": "referralUsageMaxCount",
           "type": "u32"
@@ -2971,39 +2699,7 @@ export type FairMintToken = {
         },
         {
           "name": "systemConfigAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  121,
-                  115,
-                  116,
-                  101,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103,
-                  95,
-                  118,
-                  49,
-                  46,
-                  49
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "system_config_account.admin",
-                "account": "systemConfigData"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "protocolFeeAccount",
@@ -3062,6 +2758,19 @@ export type FairMintToken = {
         133,
         135,
         33
+      ]
+    },
+    {
+      "name": "launchRuleData",
+      "discriminator": [
+        219,
+        140,
+        239,
+        85,
+        135,
+        107,
+        8,
+        102
       ]
     },
     {
@@ -3226,448 +2935,473 @@ export type FairMintToken = {
   "errors": [
     {
       "code": 6000,
+      "name": "unknowError",
+      "msg": "Unknow error"
+    },
+    {
+      "code": 6001,
       "name": "onlyAdminAllowed",
       "msg": "Only admin allowed"
     },
     {
-      "code": 6001,
+      "code": 6002,
       "name": "exceedMaxSupply",
       "msg": "Exceed max supply"
     },
     {
-      "code": 6002,
+      "code": 6003,
       "name": "notEnoughSolToPayFee",
       "msg": "Not enough SOL to pay fee"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "wrongReferrerAta",
       "msg": "Wrong referrer ATA address"
     },
     {
-      "code": 6004,
+      "code": 6005,
       "name": "wrongReferrerOwner",
       "msg": "Wrong referrer owner"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "referrerCodeResetFrozen",
       "msg": "Referrer code reset frozen"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "referrerCodeExceedMaxUsage",
       "msg": "Referrer code exceed max usage"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "wrongReferrerAtaOwner",
       "msg": "Wrong referrer ATA owner"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "wrongReferrerMainAddress",
       "msg": "Wrong referrer main address"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "referrerAtaNotReady",
       "msg": "Referrer ATA is not ready"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "referrerAtaBalanceNotEnough",
       "msg": "Referrer ATA's balance is not enough"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "wrongTokenProgram",
       "msg": "Wrong token program"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "targetErasNotReached",
       "msg": "Target eras not reached"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "wrongProtocolFeeAccount",
       "msg": "Wrong protocol fee account"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "onlyUserAccountAllowed",
       "msg": "Only user account allowed"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "notEnoughTokensToRefund",
       "msg": "Not enough tokens to refund"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "refundTokensIsZero",
       "msg": "Refund tokens is zero"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "invalidLiquidityTokensRatio",
       "msg": "Invalid liquidity tokens ratio, should be > 0 and <= 50"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "invalidReduceRatio",
       "msg": "Invalid reduce ratio, should be >= 50 and < 100"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "invalidEpochesPerEra",
       "msg": "Invalid epoches per era, should be > 0"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "invalidTargetSecondsPerEpoch",
       "msg": "Invalid target seconds per epoch, should be > 0"
     },
     {
-      "code": 6021,
+      "code": 6022,
       "name": "invalidTargetEras",
       "msg": "Invalid target eras, should be > 0"
     },
     {
-      "code": 6022,
+      "code": 6023,
       "name": "invalidInitialMintSize",
       "msg": "Invalid initial mint size, should be > 0"
     },
     {
-      "code": 6023,
+      "code": 6024,
       "name": "invalidInitialTargetMintSizePerEpoch",
       "msg": "Invalid initial target mint size per epoch, should be > 0"
     },
     {
-      "code": 6024,
+      "code": 6025,
       "name": "initialMintSizeOfEpochTooSmall",
       "msg": "Initial mint size of epoch too small, should be 10 * mint size per minting"
     },
     {
-      "code": 6025,
+      "code": 6026,
       "name": "userBalanceNotEnoughForRefund",
       "msg": "User token balance not enough for refund"
     },
     {
-      "code": 6026,
+      "code": 6027,
       "name": "vaultBalanceNotEnoughForRefund",
       "msg": "Vault token balance not enough for refund"
     },
     {
-      "code": 6027,
+      "code": 6028,
       "name": "onlySystemAdminAllowed",
       "msg": "Only system admin allowed"
     },
     {
-      "code": 6028,
+      "code": 6029,
       "name": "systemAlreadyInitialized",
       "msg": "System already initialized"
     },
     {
-      "code": 6029,
+      "code": 6030,
       "name": "wrongSystemConfigAccount",
       "msg": "Wrong system config account"
     },
     {
-      "code": 6030,
+      "code": 6031,
       "name": "invalidFeeAccount",
       "msg": "Invalid fee account"
     },
     {
-      "code": 6031,
+      "code": 6032,
       "name": "invalidTokenVault",
       "msg": "Invalid token vault"
     },
     {
-      "code": 6032,
+      "code": 6033,
       "name": "invalidWsolVault",
       "msg": "Invalid wsol vault"
     },
     {
-      "code": 6033,
+      "code": 6034,
       "name": "invalidWsolMint",
       "msg": "Invalid wsol mint"
     },
     {
-      "code": 6034,
+      "code": 6035,
       "name": "invalidTokenVaultOwner",
       "msg": "Invalid token vault owner"
     },
     {
-      "code": 6035,
+      "code": 6036,
       "name": "mintNotStarted",
       "msg": "Mint has not started"
     },
     {
-      "code": 6036,
+      "code": 6037,
       "name": "wrongReferrerCode",
       "msg": "Wrong referrer account"
     },
     {
-      "code": 6037,
+      "code": 6038,
       "name": "wrongMintAddress",
       "msg": "Wrong mint address"
     },
     {
-      "code": 6038,
+      "code": 6039,
       "name": "mintHasStarted",
       "msg": "Mint has started"
     },
     {
-      "code": 6039,
+      "code": 6040,
       "name": "invalidTokenMint",
       "msg": "Invalid token mint"
     },
     {
-      "code": 6040,
+      "code": 6041,
       "name": "invalidTokenOwner",
       "msg": "Invalid token owner"
     },
     {
-      "code": 6041,
+      "code": 6042,
       "name": "numericOverflow",
       "msg": "Numeric overflow"
     },
     {
-      "code": 6042,
+      "code": 6043,
       "name": "insufficientFunds",
       "msg": "Insufficient funds"
     },
     {
-      "code": 6043,
+      "code": 6044,
       "name": "burnOperationFailed",
       "msg": "Burn operation failed"
     },
     {
-      "code": 6044,
+      "code": 6045,
       "name": "refundInProgress",
       "msg": "Refund in progress"
     },
     {
-      "code": 6045,
+      "code": 6046,
       "name": "divideByZero",
       "msg": "Division by zero"
     },
     {
-      "code": 6046,
+      "code": 6047,
       "name": "transferFailed",
       "msg": "Transfer failed"
     },
     {
-      "code": 6047,
+      "code": 6048,
       "name": "referrerMainAccountEmpty",
       "msg": "Referrer main account empty"
     },
     {
-      "code": 6048,
+      "code": 6049,
       "name": "payerMustSign",
       "msg": "Payer must sign"
     },
     {
-      "code": 6049,
+      "code": 6050,
       "name": "invalidPayerAccount",
       "msg": "Invalid payer account"
     },
     {
-      "code": 6050,
+      "code": 6051,
       "name": "invalidCodeHash",
       "msg": "Invalid code hash"
     },
     {
-      "code": 6051,
+      "code": 6052,
       "name": "invalidResetInterval",
       "msg": "Invalid reset interval"
     },
     {
-      "code": 6052,
+      "code": 6053,
       "name": "tokenAlreadyInitialized",
       "msg": "Token already initialized"
     },
     {
-      "code": 6053,
+      "code": 6054,
       "name": "invalidTokenName",
       "msg": "Invalid token name"
     },
     {
-      "code": 6054,
+      "code": 6055,
       "name": "invalidTokenSymbol",
       "msg": "Invalid token symbol"
     },
     {
-      "code": 6055,
+      "code": 6056,
       "name": "invalidTokenUri",
       "msg": "Invalid token uri"
     },
     {
-      "code": 6056,
+      "code": 6057,
       "name": "metadataAlreadyInitialized",
       "msg": "Metadata already initialized"
     },
     {
-      "code": 6057,
+      "code": 6058,
       "name": "invalidProtocolFeeRate",
       "msg": "Invalid protocol fee rate, max 50000 which is 50%"
     },
     {
-      "code": 6058,
+      "code": 6059,
       "name": "invalidRefundFeeRate",
       "msg": "Invalid refund fee rate, max 50000 which is 50%"
     },
     {
-      "code": 6059,
+      "code": 6060,
       "name": "mintInProgress",
       "msg": "Mint in progress"
     },
     {
-      "code": 6060,
+      "code": 6061,
       "name": "setReferrerCodeProcess",
       "msg": "Set referrer code processing"
     },
     {
-      "code": 6061,
+      "code": 6062,
       "name": "payerAmountTooLow",
       "msg": "Payer amount too low"
     },
     {
-      "code": 6062,
+      "code": 6063,
       "name": "configSupplyNotMatchMintSupply",
       "msg": "Config supply not match mint supply"
     },
     {
-      "code": 6063,
+      "code": 6064,
       "name": "insufficientBalanceForDeployment",
       "msg": "Insufficient balance for deployment"
     },
     {
-      "code": 6064,
+      "code": 6065,
       "name": "sendInitializingFeeFailed",
       "msg": "Send initializing fee failed"
     },
     {
-      "code": 6065,
+      "code": 6066,
       "name": "invalidMintAccount",
       "msg": "Invalid mint account"
     },
     {
-      "code": 6066,
+      "code": 6067,
       "name": "invalidTokenProgram",
       "msg": "Invalid token program"
     },
     {
-      "code": 6067,
+      "code": 6068,
       "name": "refundOnlyAllowedInTargetEras",
       "msg": "Refund only allowed in target eras"
     },
     {
-      "code": 6068,
+      "code": 6069,
       "name": "graduateFrozenPeriodNotOver",
       "msg": "Graduate frozen period not over, need to wait 2 epochs after target era arrived!"
     },
     {
-      "code": 6069,
+      "code": 6070,
       "name": "onlyValueManagerAllowed",
       "msg": "Only value manager allowed"
     },
     {
-      "code": 6070,
+      "code": 6071,
       "name": "invalidValueManager",
       "msg": "Invalid value manager"
     },
     {
-      "code": 6071,
+      "code": 6072,
       "name": "invalidProtocolFeeAccount",
       "msg": "Invalid protocol fee account"
     },
     {
-      "code": 6072,
+      "code": 6073,
       "name": "invalidRemainingAccounts",
       "msg": "Invalid remaining accounts"
     },
     {
-      "code": 6073,
+      "code": 6074,
       "name": "creatorTokenNotEnoughForInitializePool",
       "msg": "Creator token not enough for initialize pool"
     },
     {
-      "code": 6074,
+      "code": 6075,
       "name": "graduateFeeIsNotEnough",
       "msg": "Graduate fee is not enough"
     },
     {
-      "code": 6075,
+      "code": 6076,
       "name": "invalidDestinationAta",
       "msg": "Invalid destination ata"
     },
     {
-      "code": 6076,
+      "code": 6077,
       "name": "protocolWsolVaultIsIsEmpty",
       "msg": "Protocol wsol vault is is empty"
     },
     {
-      "code": 6077,
+      "code": 6078,
       "name": "invalidMillisecondsPerSlot",
       "msg": "Invalid milliseconds per slot"
     },
     {
-      "code": 6078,
+      "code": 6079,
       "name": "selfReferrerNotAllowed",
       "msg": "Self referrer not allowed"
     },
     {
-      "code": 6079,
+      "code": 6080,
       "name": "wrongPoolToken",
       "msg": "Wrong pool token"
     },
     {
-      "code": 6080,
+      "code": 6081,
       "name": "wrongTokenMintOrder",
       "msg": "Wrong token mint order"
     },
     {
-      "code": 6081,
+      "code": 6082,
       "name": "invalidMintTokenVaultOwner",
       "msg": "Invalid mint token vault owner"
     },
     {
-      "code": 6082,
+      "code": 6083,
       "name": "userBalanceNotEqualToRefund",
       "msg": "User balance not equal to refund"
     },
     {
-      "code": 6083,
+      "code": 6084,
       "name": "vaultBalanceNotEqualToRefund",
       "msg": "Vault balance not equal to refund"
     },
     {
-      "code": 6084,
+      "code": 6085,
       "name": "insufficientMintTokenVaultBalance",
       "msg": "Insufficient mint token vault balance"
     },
     {
-      "code": 6085,
+      "code": 6086,
       "name": "poolAlreadyCreated",
       "msg": "Pool already created"
     },
     {
-      "code": 6086,
+      "code": 6087,
       "name": "invalidVaultBalance",
       "msg": "Vault balance not equal to refund"
     },
     {
-      "code": 6087,
+      "code": 6088,
       "name": "invalidMintTokenVault",
       "msg": "Invalid mint token vault"
     },
     {
-      "code": 6088,
+      "code": 6089,
       "name": "launchTokenPaused",
       "msg": "Launch token paused"
+    },
+    {
+      "code": 6090,
+      "name": "launchRuleAlreadyInitialized",
+      "msg": "Launch rule already initialized"
+    },
+    {
+      "code": 6091,
+      "name": "launchRuleLimited",
+      "msg": "Launch rule limited"
+    },
+    {
+      "code": 6092,
+      "name": "tokenToPoolNotEnough",
+      "msg": "Token to pool not enough"
+    },
+    {
+      "code": 6093,
+      "name": "launchRuleAdminNotMatch",
+      "msg": "Launch rule admin not match"
     }
   ],
   "types": [
@@ -3897,6 +3631,46 @@ export type FairMintToken = {
           {
             "name": "wsolVault",
             "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "launchRuleData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "startSlot",
+            "type": "u64"
+          },
+          {
+            "name": "slotsPerPeriod",
+            "type": "u64"
+          },
+          {
+            "name": "baseLaunchLimit",
+            "type": "u64"
+          },
+          {
+            "name": "increasementLaunchLimit",
+            "type": "u64"
+          },
+          {
+            "name": "maxPeriod",
+            "type": "u64"
+          },
+          {
+            "name": "lastPeriod",
+            "type": "u64"
+          },
+          {
+            "name": "currentLaunchesInPeriod",
+            "type": "u64"
           }
         ]
       }
