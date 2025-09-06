@@ -681,101 +681,101 @@ export const cleanMetadata = (metadata: { name: string, symbol: string, uri: str
   return cleaned;
 };
 
-export const processTransaction = async (
-  tx: Transaction,
-  connection: Connection,
-  wallet: AnchorWallet,
-  successMessage: string,
-  extraData: {}
-) => {
-  try {
-    // Get latest blockhash
-    const latestBlockhash = await connection.getLatestBlockhash();
+// export const processTransaction = async (
+//   tx: Transaction,
+//   connection: Connection,
+//   wallet: AnchorWallet,
+//   successMessage: string,
+//   extraData: {}
+// ) => {
+//   try {
+//     // Get latest blockhash
+//     const latestBlockhash = await connection.getLatestBlockhash();
 
-    // Get processing tx
-    const processingTx = localStorage.getItem('processing_tx');
-    const processingTimestamp = localStorage.getItem('processing_timestamp');
-    const now = Date.now();
+//     // Get processing tx
+//     const processingTx = localStorage.getItem('processing_tx');
+//     const processingTimestamp = localStorage.getItem('processing_timestamp');
+//     const now = Date.now();
 
-    // Check if there is a processing transaction (transaction within 2 seconds is considered as processing)
-    if (processingTx && processingTimestamp && (now - parseInt(processingTimestamp)) < 2000) {
-      return {
-        success: false,
-        message: 'Previous transaction is still processing. Please wait.'
-      }
-    }
+//     // Check if there is a processing transaction (transaction within 2 seconds is considered as processing)
+//     if (processingTx && processingTimestamp && (now - parseInt(processingTimestamp)) < 2000) {
+//       return {
+//         success: false,
+//         message: 'Previous transaction is still processing. Please wait.'
+//       }
+//     }
 
-    // Set transaction parameters
-    tx.recentBlockhash = latestBlockhash.blockhash;
-    tx.feePayer = wallet.publicKey;
+//     // Set transaction parameters
+//     tx.recentBlockhash = latestBlockhash.blockhash;
+//     tx.feePayer = wallet.publicKey;
 
-    // Sign and serialize
-    const signedTx = await wallet.signTransaction(tx);
-    const serializedTx = signedTx.serialize();
+//     // Sign and serialize
+//     const signedTx = await wallet.signTransaction(tx);
+//     const serializedTx = signedTx.serialize();
 
-    // Simulate the transaction
-    const simulation = await connection.simulateTransaction(signedTx);
+//     // Simulate the transaction
+//     const simulation = await connection.simulateTransaction(signedTx);
 
-    // If simulation fails, return error
-    if (simulation.value.err) {
-      return {
-        success: false,
-        message: `Transaction simulation failed: ${simulation.value.logs as string[]}`
-      };
-    }
+//     // If simulation fails, return error
+//     if (simulation.value.err) {
+//       return {
+//         success: false,
+//         message: `Transaction simulation failed: ${simulation.value.logs as string[]}`
+//       };
+//     }
 
-    // Mark the transaction as processing
-    localStorage.setItem('processing_tx', 'true');
-    localStorage.setItem('processing_timestamp', now.toString());
+//     // Mark the transaction as processing
+//     localStorage.setItem('processing_tx', 'true');
+//     localStorage.setItem('processing_timestamp', now.toString());
 
-    // Send the transaction
-    const txHash = await connection.sendRawTransaction(serializedTx, {
-      skipPreflight: true 
-    });
+//     // Send the transaction
+//     const txHash = await connection.sendRawTransaction(serializedTx, {
+//       skipPreflight: true 
+//     });
 
-    // Wait for the transaction confirmation
-    const confirmation = await connection.confirmTransaction({
-      signature: txHash,
-      blockhash: latestBlockhash.blockhash,
-      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
-    }, 'confirmed');
+//     // Wait for the transaction confirmation
+//     const confirmation = await connection.confirmTransaction({
+//       signature: txHash,
+//       blockhash: latestBlockhash.blockhash,
+//       lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+//     }, 'confirmed');
 
-    if (confirmation.value.err) {
-      const txDetails = await connection.getTransaction(txHash, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
-      const errorMessage = txDetails?.meta?.logMessages || [];
-      return {
-        success: false,
-        message: 'Transaction failed: ' + errorMessage
-      }
-    }
+//     if (confirmation.value.err) {
+//       const txDetails = await connection.getTransaction(txHash, {
+//         commitment: "confirmed",
+//         maxSupportedTransactionVersion: 0,
+//       });
+//       const errorMessage = txDetails?.meta?.logMessages || [];
+//       return {
+//         success: false,
+//         message: 'Transaction failed: ' + errorMessage
+//       }
+//     }
 
-    return {
-      success: true,
-      message: successMessage,
-      data: {
-        tx: txHash,
-        ...extraData
-      }
-    };
-  } catch (error: any) {
-    if (error.message.includes('Transaction simulation failed: This transaction has already been processed')) {
-      return {
-        success: false,
-        message: 'Something went wrong but you have mint successfully',
-      }
-    }
-    return {
-      success: false,
-      message: 'Error: ' + error.message,
-    };
-  } finally {
-    localStorage.removeItem('processing_tx');
-    localStorage.removeItem('processing_timestamp');
-  }
-}
+//     return {
+//       success: true,
+//       message: successMessage,
+//       data: {
+//         tx: txHash,
+//         ...extraData
+//       }
+//     };
+//   } catch (error: any) {
+//     if (error.message.includes('Transaction simulation failed: This transaction has already been processed')) {
+//       return {
+//         success: false,
+//         message: 'Something went wrong but you have mint successfully',
+//       }
+//     }
+//     return {
+//       success: false,
+//       message: 'Error: ' + error.message,
+//     };
+//   } finally {
+//     localStorage.removeItem('processing_tx');
+//     localStorage.removeItem('processing_timestamp');
+//   }
+// }
 
 export const parseConfigData = async (program: anchor.Program<FairMintToken> , configAccount: PublicKey): Promise<any> => {
   return new Promise((resolve, reject) => {
@@ -905,3 +905,140 @@ export const initializeToken = async (
     return { success: false, message: error.message };
   }
 };
+
+export const processTransaction = async (
+  tx: Transaction,
+  connection: Connection,
+  wallet: AnchorWallet,
+  successMessage: string,
+  extraData: {}
+) => {
+  try {
+    // Get latest blockhash
+    const latestBlockhash = await connection.getLatestBlockhash();
+
+    // Get processing tx
+    const processingTx = localStorage.getItem('processing_tx');
+    const processingTimestamp = localStorage.getItem('processing_timestamp');
+    const now = Date.now();
+
+    // Check if there is a processing transaction (transaction within 2 seconds is considered as processing)
+    if (processingTx && processingTimestamp && (now - parseInt(processingTimestamp)) < 2000) {
+      return {
+        success: false,
+        message: 'Previous transaction is still processing. Please wait.'
+      }
+    }
+
+    // Set transaction parameters
+    tx.recentBlockhash = latestBlockhash.blockhash;
+    tx.feePayer = wallet.publicKey;
+
+    // 尝试优先使用钱包适配器的 sendTransaction（移动端外置浏览器最兼容）
+    const walletAny = wallet as any;
+    if (typeof walletAny?.sendTransaction === 'function') {
+      // Mark the transaction as processing
+      localStorage.setItem('processing_tx', 'true');
+      localStorage.setItem('processing_timestamp', now.toString());
+
+      // 使用 sendTransaction 发送，交由钱包完整签名并广播
+      const txHash = await walletAny.sendTransaction(tx, connection, {
+        skipPreflight: false,
+        preflightCommitment: 'processed',
+      });
+
+      const confirmation = await connection.confirmTransaction({
+        signature: txHash,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+      }, 'confirmed');
+
+      if (confirmation.value.err) {
+        const txDetails = await connection.getTransaction(txHash, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
+        const errorMessage = txDetails?.meta?.logMessages || [];
+        return {
+          success: false,
+          message: 'Transaction failed: ' + errorMessage
+        }
+      }
+
+      return {
+        success: true,
+        message: successMessage,
+        data: {
+          tx: txHash,
+          ...extraData
+        }
+      };
+    }
+
+    // Sign and serialize
+    const signedTx = await wallet.signTransaction(tx);
+    const serializedTx = signedTx.serialize();
+
+    // Simulate the transaction
+    const simulation = await connection.simulateTransaction(signedTx);
+
+    // If simulation fails, return error
+    if (simulation.value.err) {
+      return {
+        success: false,
+        message: `Transaction simulation failed: ${simulation.value.logs as string[]}`
+      };
+    }
+
+    // Mark the transaction as processing
+    localStorage.setItem('processing_tx', 'true');
+    localStorage.setItem('processing_timestamp', now.toString());
+
+    // Send the transaction
+    const txHash = await connection.sendRawTransaction(serializedTx, {
+      skipPreflight: true 
+    });
+
+    // Wait for the transaction confirmation
+    const confirmation = await connection.confirmTransaction({
+      signature: txHash,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+    }, 'confirmed');
+
+    if (confirmation.value.err) {
+      const txDetails = await connection.getTransaction(txHash, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      const errorMessage = txDetails?.meta?.logMessages || [];
+      return {
+        success: false,
+        message: 'Transaction failed: ' + errorMessage
+      }
+    }
+
+    return {
+      success: true,
+      message: successMessage,
+      data: {
+        tx: txHash,
+        ...extraData
+      }
+    };
+  } catch (error: any) {
+    if (error.message.includes('Transaction simulation failed: This transaction has already been processed')) {
+      return {
+        success: false,
+        message: 'Something went wrong but you have mint successfully',
+      }
+    }
+    return {
+      success: false,
+      message: 'Error: ' + error.message,
+    };
+  } finally {
+    localStorage.removeItem('processing_tx');
+    localStorage.removeItem('processing_timestamp');
+  }
+}
