@@ -822,7 +822,6 @@ export const initializeToken = async (
 ): Promise<ResponseData> => {
   try {
     // Basic balance check
-    // ######
     const balance = await getSolanaBalance(account.publicKey, connection);
     if (balance === 0) {
       return { success: false, message: 'Balance not enough' };
@@ -872,13 +871,6 @@ export const initializeToken = async (
       launchRuleAccount: NETWORK_CONFIGS[network].launchRuleAccount,
       tokenMetadataProgram: NETWORK_CONFIGS[network].tokenMetadataProgramId,
     }
-    // console.log('initConfigData', Object.fromEntries(
-    //   Object.entries(initConfigData).map(([key, value]) => [key, value.toString()])
-    // ));
-
-    // console.log('contextInitializeTokenAccounts', Object.fromEntries(
-    //   Object.entries(contextInitializeTokenAccounts).map(([key, value]) => [key, value.toString()])
-    // ));
 
     const ix = await program.methods
       .initializeToken(metadata, initConfigData as any)
